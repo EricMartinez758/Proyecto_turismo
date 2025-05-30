@@ -3,7 +3,7 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import InvoicePDF from './InvoicePDF';
 
-const CreateReservationModal = ({ show, onHide, onCreate, activityPrices }) => {
+const CreateReservationModal = ({ show, onHide, onCreate, activityPrices, clients }) => {
     const [formData, setFormData] = useState({
         reservationDate: new Date().toISOString().split('T')[0],
         activity: {
@@ -11,14 +11,10 @@ const CreateReservationModal = ({ show, onHide, onCreate, activityPrices }) => {
             location: '',
             price: activityPrices.tour
         },
-        client: {
-            firstName: '',
-            lastName: '',
-            idNumber: '',
-            phone: ''
-        },
+        client: clients[0] || {},
         paymentMethod: 'USD',
         active: true
+
     });
 
     const [showInvoice, setShowInvoice] = useState(false);
@@ -41,7 +37,6 @@ const CreateReservationModal = ({ show, onHide, onCreate, activityPrices }) => {
                 [name]: value
             }));
         }
-
         // Actualizar precio cuando cambia el tipo de actividad
         if (name === 'activity.type') {
             setFormData(prev => ({
@@ -54,6 +49,14 @@ const CreateReservationModal = ({ show, onHide, onCreate, activityPrices }) => {
         }
     };
 
+    const handleClientChange = (clientId) => {
+        const selectedClient = clients.find(c => c.id === parseInt(clientId));
+        setFormData(prev => ({
+            ...prev,
+            client: selectedClient || {}
+        }));
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
         onCreate(formData);
@@ -61,8 +64,8 @@ const CreateReservationModal = ({ show, onHide, onCreate, activityPrices }) => {
     };
 
     const calculateTotal = () => {
-        return formData.activity.price[formData.paymentMethod] || formData.activity.price.USD;
-    };
+        return formData.activity.price[formData.paymentMethod] || 0;
+    }
 
     return (
         <Modal show={show} onHide={onHide} size="lg">
@@ -71,6 +74,7 @@ const CreateReservationModal = ({ show, onHide, onCreate, activityPrices }) => {
             </Modal.Header>
             <Modal.Body>
                 <Form onSubmit={handleSubmit}>
+
                     <Form.Group className="mb-3">
                         <Form.Label>Fecha de Reservación</Form.Label>
                         <Form.Control
@@ -108,57 +112,32 @@ const CreateReservationModal = ({ show, onHide, onCreate, activityPrices }) => {
                     </Form.Group>
 
                     <h5 className="mt-4 mb-3">Datos del Cliente</h5>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Seleccionar Cliente</Form.Label>
+                        <Form.Select
+                            onChange={(e) => handleClientChange(e.target.value)}
+                            value={formData.client.id || ''}
+                            required
+                        >
+                            {clients.map(client => (
+                                <option key={client.id} value={client.id}>
+                                    {client.firstName} {client.lastName} - {client.idNumber}
+                                </option>
+                            ))}
+                        </Form.Select>
+                    </Form.Group>
 
-                    <div className="row">
-                        <Form.Group className="mb-3 col-md-6">
-                            <Form.Label>Nombres</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="client.firstName"
-                                value={formData.client.firstName}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Form.Group>
+                    {/* Mostrar datos del cliente seleccionado */}
+                    {formData.client.id && (
+                        <div className="p-3 mb-3 bg-light rounded">
+                            <p><strong>Nombre:</strong> {formData.client.firstName} {formData.client.lastName}</p>
+                            <p><strong>Cédula:</strong> {formData.client.idNumber}</p>
+                            <p><strong>Teléfono:</strong> {formData.client.phone}</p>
+                        </div>
+                    )}
 
-                        <Form.Group className="mb-3 col-md-6">
-                            <Form.Label>Apellidos</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="client.lastName"
-                                value={formData.client.lastName}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Form.Group>
-                    </div>
-
-                    <div className="row">
-                        <Form.Group className="mb-3 col-md-6">
-                            <Form.Label>Cédula/Número de Identificación</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="client.idNumber"
-                                value={formData.client.idNumber}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Form.Group>
-
-                        <Form.Group className="mb-3 col-md-6">
-                            <Form.Label>Teléfono</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="client.phone"
-                                value={formData.client.phone}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Form.Group>
-                    </div>
-
+                    {/* Sección de pago */}
                     <h5 className="mt-4 mb-3">Información de Pago</h5>
-
                     <div className="row">
                         <Form.Group className="mb-3 col-md-6">
                             <Form.Label>Método de Pago</Form.Label>

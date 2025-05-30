@@ -3,7 +3,14 @@ import { Table, Button, Badge } from 'react-bootstrap';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import InvoicePDF from './InvoicePDF';
 
-const ReservationTable = ({ reservations, onEdit, onStatusChange }) => {
+const ReservationTable = ({ 
+  reservations, 
+  onEdit = () => console.log('Editar reservación'), 
+  onStatusChange = () => console.log('Cambiar estado de reservación'),
+  onToggleActive = () => console.log('Activar/desactivar reservación') 
+}) => {
+  if (!reservations) return null;
+
   const calculateTotal = (reservation) => {
     return reservation.activity.price[reservation.paymentMethod] || 
            reservation.activity.price.USD;
@@ -11,8 +18,8 @@ const ReservationTable = ({ reservations, onEdit, onStatusChange }) => {
 
   return (
     <div className="table-responsive">
-      <Table striped bordered hover className="mt-4">
-        <thead className="table-dark">
+      <Table className="mt-4">
+        <thead className="table-light">
           <tr>
             <th>Código</th>
             <th>Fecha</th>
@@ -27,7 +34,7 @@ const ReservationTable = ({ reservations, onEdit, onStatusChange }) => {
         </thead>
         <tbody>
           {reservations.map(reservation => (
-            <tr key={reservation.id} className={!reservation.active ? 'table-secondary' : ''}>
+            <tr key={reservation.id} className={reservation.estado === 'cancelado' ? 'table-secondary' : ''}>
               <td>{reservation.reservationCode}</td>
               <td>{reservation.reservationDate}</td>
               <td>{reservation.activity.type}</td>
@@ -46,36 +53,62 @@ const ReservationTable = ({ reservations, onEdit, onStatusChange }) => {
                 {reservation.activity.price.VES.toFixed(2)} Bs
               </td>
               <td>
-                <Badge bg={reservation.active ? 'success' : 'secondary'}>
-                  {reservation.active ? 'Activo' : 'Inactivo'}
+                <Badge bg={reservation.estado === 'reservado' ? 'success' : 'danger'}>
+                  {reservation.estado}
                 </Badge>
               </td>
               <td>
-                <div className="d-flex flex-wrap gap-1">
-                  <Button 
-                    variant="outline-primary" 
+                <div className="d-flex gap-2">
+                  {/* Botón para ver/editar */}
+                  <Button
+                    variant="outline-primary"
                     size="sm"
                     onClick={() => onEdit(reservation)}
+                    title="Ver/Editar reservación"
                   >
-                    <i className="bi bi-pencil"></i>
+                    <i className="bi bi-eye"></i>
                   </Button>
+
+                  {/* Botón para cambiar estado */}
                   <Button
-                    variant={reservation.active ? 'outline-warning' : 'outline-success'}
+                    variant={reservation.estado === 'reservado' ? 'outline-danger' : 'outline-success'}
                     size="sm"
                     onClick={() => onStatusChange(reservation)}
+                    title={reservation.estado === 'reservado' ? 'Cancelar reservación' : 'Reactivar reservación'}
                   >
-                    {reservation.active ? (
-                      <i className="bi bi-eye-slash"></i>
+                    {reservation.estado === 'reservado' ? (
+                      <i className="bi bi-x-circle"></i>
                     ) : (
-                      <i className="bi bi-eye"></i>
+                      <i className="bi bi-check-circle"></i>
                     )}
                   </Button>
+
+                  {/* Botón para activar/desactivar */}
+                  <Button
+                    variant={reservation.active ? 'outline-warning' : 'outline-secondary'}
+                    size="sm"
+                    onClick={() => onToggleActive(reservation)}
+                    title={reservation.active ? 'Desactivar reservación' : 'Activar reservación'}
+                  >
+                    {reservation.active ? (
+                      <i className="bi bi-toggle-on"></i>
+                    ) : (
+                      <i className="bi bi-toggle-off"></i>
+                    )}
+                  </Button>
+
+                  {/* Botón para descargar PDF */}
                   <PDFDownloadLink
                     document={<InvoicePDF reservation={reservation} total={calculateTotal(reservation)} />}
                     fileName={`factura_${reservation.reservationCode}.pdf`}
                   >
                     {({ loading }) => (
-                      <Button variant="outline-danger" size="sm" disabled={loading}>
+                      <Button 
+                        variant="outline-danger" 
+                        size="sm" 
+                        disabled={loading}
+                        title="Descargar factura PDF"
+                      >
                         {loading ? '...' : <i className="bi bi-file-earmark-pdf"></i>}
                       </Button>
                     )}

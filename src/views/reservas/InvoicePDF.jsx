@@ -64,10 +64,18 @@ const styles = StyleSheet.create({
   priceHeader: {
     fontWeight: 'bold',
     backgroundColor: '#f0f0f0'
-  }
+  },
+  calculation: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 5
+}
 });
 
 const InvoicePDF = ({ reservation, total }) => (
+
+    
   <Document>
     <Page size="A4" style={styles.page}>
       <View style={styles.header}>
@@ -104,33 +112,33 @@ const InvoicePDF = ({ reservation, total }) => (
         </View>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Detalles de Pago</Text>
-        <View style={styles.row}>
-          <Text style={styles.label}>Método de Pago:</Text>
-          <Text style={styles.value}>{reservation.paymentMethod}</Text>
-        </View>
-        
-        <View style={styles.priceTable}>
-          <View style={[styles.priceRow, styles.priceHeader]}>
-            <View style={styles.priceCell}><Text>Moneda</Text></View>
-            <View style={styles.priceCell}><Text>Precio</Text></View>
-            <View style={styles.priceCell}><Text>Tasa (Bs)</Text></View>
-            <View style={styles.priceCell}><Text>Total (Bs)</Text></View>
+      
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Detalles de Pago</Text>
+          
+          <View style={styles.calculation}>
+            <Text>Precio base: {reservation.activity.price.USD.toFixed(2)} USD</Text>
+            <Text>Tasa de cambio aplicada:</Text>
+            <Text>- EUR: 1 USD = 0.85 EUR</Text>
+            <Text>- COP: 1 USD = 3800 COP</Text>
+            <Text>- VES: 1 USD = 36.50 VES (BCV)</Text>
+          </View>
+
+          <View style={styles.row}>
+            <Text style={styles.label}>Método de Pago:</Text>
+            <Text style={styles.value}>{reservation.paymentMethod}</Text>
           </View>
           
-          <View style={styles.priceRow}>
-            <View style={styles.priceCell}><Text>USD</Text></View>
-            <View style={styles.priceCell}><Text>{reservation.activity.price.USD.toFixed(2)}</Text></View>
-            <View style={styles.priceCell}><Text>36.50</Text></View>
-            <View style={styles.priceCell}><Text>{reservation.activity.price.VES.toFixed(2)}</Text></View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Total a Pagar:</Text>
+            <Text style={styles.value}>
+              {total.toFixed(2)} {reservation.paymentMethod}
+              {reservation.paymentMethod !== 'USD' && (
+                <Text> ({reservation.activity.price.USD.toFixed(2)} USD)</Text>
+              )}
+            </Text>
           </View>
         </View>
-      </View>
-
-      <View style={styles.total}>
-        <Text>TOTAL A PAGAR: {reservation.activity.price.VES.toFixed(2)} Bs</Text>
-      </View>
     </Page>
   </Document>
 );

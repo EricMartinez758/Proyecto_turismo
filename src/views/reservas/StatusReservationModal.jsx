@@ -2,6 +2,8 @@ import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
 
 const StatusReservationModal = ({ show, onHide, onConfirm, reservation }) => {
+  if (!reservation) return null;
+
   const handleConfirm = () => {
     onConfirm(reservation.id);
   };
@@ -13,8 +15,8 @@ const StatusReservationModal = ({ show, onHide, onConfirm, reservation }) => {
       </Modal.Header>
       <Modal.Body>
         <p>
-          ¿Estás seguro que deseas {reservation.active ? 'desactivar' : 'activar'} la reservación 
-          <strong> {reservation.reservationCode}</strong> del cliente 
+          ¿Estás seguro que deseas {reservation.estado === 'reservado' ? 'cancelar' : 'reactivar'} la reservación
+          <strong> {reservation.reservationCode}</strong> del cliente
           <strong> {reservation.client.firstName} {reservation.client.lastName}</strong>?
         </p>
       </Modal.Body>
@@ -22,11 +24,11 @@ const StatusReservationModal = ({ show, onHide, onConfirm, reservation }) => {
         <Button variant="secondary" onClick={onHide}>
           Cancelar
         </Button>
-        <Button 
-          variant={reservation.active ? 'warning' : 'success'} 
+        <Button
+          variant={reservation.estado === 'reservado' ? 'danger' : 'success'}
           onClick={handleConfirm}
         >
-          {reservation.active ? 'Desactivar' : 'Activar'}
+          {reservation.estado === 'reservado' ? 'Cancelar' : 'Reactivar'}
         </Button>
       </Modal.Footer>
     </Modal>

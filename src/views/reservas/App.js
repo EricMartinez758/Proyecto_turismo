@@ -3,22 +3,42 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../../scss/App.css';
 import ReservationTable from './ReservationTable';
 import CreateReservationModal from './CreateReservationModal';
-import EditReservationModal from './EditReservationModal';
 import StatusReservationModal from './StatusReservationModal';
 
 function App() {
     const [reservations, setReservations] = useState([]);
+    const [clients, setClients] = useState([]);
     const [showCreateModal, setShowCreateModal] = useState(false);
-    const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedReservation, setSelectedReservation] = useState(null);
     const [showStatusModal, setShowStatusModal] = useState(false);
     const [currentReservation, setCurrentReservation] = useState(null);
-
     // Precios fijos por tipo de actividad
     const activityPrices = {
-        tour: { USD: 50, VES: 50 * 36.50 },
-        'plan vacional': { USD: 200, VES: 200 * 36.50 },
-        maraton: { USD: 30, VES: 30 * 36.50 }
+        tour: {
+            USD: 50,
+            EUR: 50 * 0.85, // Tasa de cambio aproximada EUR/USD
+            COP: 50 * 3800, // Tasa de cambio aproximada COP/USD
+            VES: 50 * 36.50 // Tasa de cambio BCV
+        },
+        'plan vacional': {
+            USD: 200,
+            EUR: 200 * 0.85,
+            COP: 200 * 3800,
+            VES: 200 * 36.50
+        },
+        maraton: {
+            USD: 30,
+            EUR: 30 * 0.85,
+            COP: 30 * 3800,
+            VES: 30 * 36.50
+        }
     };
+    const initialReservations = [
+        { id: 1, cliente: 'Juan Pérez', fecha: '2023-05-15', estado: 'reservado' },
+        { id: 2, cliente: 'María Gómez', fecha: '2023-05-16', estado: 'reservado' },
+        { id: 3, cliente: 'Carlos Ruiz', fecha: '2023-05-17', estado: 'reservado' }
+    ];
+
 
     useEffect(() => {
         // Datos de ejemplo
@@ -52,23 +72,11 @@ function App() {
         setShowCreateModal(false);
     };
 
-    const handleUpdate = (updatedReservation) => {
-        setReservations(reservations.map(res =>
-            res.id === updatedReservation.id ? updatedReservation : res
-        ));
-        setShowEditModal(false);
-    };
-
     const handleStatusChange = (id) => {
         setReservations(reservations.map(res =>
-            res.id === id ? { ...res, active: !res.active } : res
+            res.id === id ? { ...res, estado: res.estado === 'reservado' ? 'cancelado' : 'reservado' } : res
         ));
         setShowStatusModal(false);
-    };
-
-    const openEditModal = (reservation) => {
-        setCurrentReservation(reservation);
-        setShowEditModal(true);
     };
 
     const openStatusModal = (reservation) => {
@@ -79,7 +87,7 @@ function App() {
     return (
         <div className="container mt-4">
             <header className="d-flex justify-content-between align-items-center mb-4">
-                <h1 className="mb-0">Sistema de Reservaciones</h1>
+
                 <button
                     className="btn btn-primary"
                     onClick={() => setShowCreateModal(true)}
@@ -91,8 +99,9 @@ function App() {
 
             <ReservationTable
                 reservations={reservations}
-                onEdit={openEditModal}
-                onStatusChange={openStatusModal}
+                onEdit={(reservation) => handleEdit(reservation)}
+                onStatusChange={(reservation) => toggleReservationStatus(reservation)}
+                onToggleActive={(reservation) => toggleActiveStatus(reservation)}
             />
 
             <CreateReservationModal
@@ -100,22 +109,16 @@ function App() {
                 onHide={() => setShowCreateModal(false)}
                 onCreate={handleCreate}
                 activityPrices={activityPrices}
+                clients={initialReservations} // Cambia esto por tus datos de clientes
             />
-
-            <EditReservationModal
-                show={showEditModal}
-                onHide={() => setShowEditModal(false)}
-                onUpdate={handleUpdate}
-                reservation={currentReservation}
-                activityPrices={activityPrices}
-            />
-
-            <StatusReservationModal
-                show={showStatusModal}
-                onHide={() => setShowStatusModal(false)}
-                onConfirm={handleStatusChange}
-                reservation={currentReservation}
-            />
+            {showStatusModal && currentReservation && (
+                <StatusReservationModal
+                    show={showStatusModal}
+                    onHide={() => setShowStatusModal(false)}
+                    onConfirm={handleStatusChange}
+                    reservation={currentReservation}
+                />
+            )}
         </div>
     );
 }
