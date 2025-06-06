@@ -55,6 +55,7 @@ const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
 const Personal = React.lazy(() => import('./views/personas/personal/App'))
 const Clientes = React.lazy(() => import('./views/personas/clientes/App'))
 const Reservas = React.lazy(() => import('./views/reservas/App'))
+const Eventos = React.lazy(() => import('./views/eventos/EventManager'))
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
@@ -64,6 +65,7 @@ const routes = [
   { path: '/personas/personal', name: 'Personal', element: Personal },
   { path: '/personas/clientes', name: 'Clientes', element: Clientes },
   { path: '/reservas/', name: 'Reservas', element: Reservas, exact: true },
+  { path: '/eventos/', name: 'Eventos', element: Eventos, exact: true },
   // Ruta corregida para Clientes - debe coincidir con _nav.j
 
   { path: '/theme', name: 'Theme', element: Colors, exact: true },

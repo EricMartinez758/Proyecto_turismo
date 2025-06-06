@@ -37,18 +37,19 @@ const _nav = [
     component: CNavTitle,
     name: 'Experiencias',
   },
-  {
-    component: CNavItem,
-    name: 'Reservas',
-    to: '/reservas/',
-    icon: <CIcon icon={cilCart} customClassName="nav-icon" />,
-  },
-  {
+   {
     component: CNavItem,
     name: 'Eventos',
     to: '/eventos/',
     icon: <CIcon icon={cibEventStore} customClassName="nav-icon" />,
   },
+  {
+    component: CNavItem,
+    name: 'Reservas',
+    to: '/reservas/',
+    icon: <CIcon icon={cilCart} customClassName="nav-icon" />,
+  }
+ 
 
 ]
 

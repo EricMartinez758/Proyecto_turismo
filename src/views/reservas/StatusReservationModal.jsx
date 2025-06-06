@@ -2,9 +2,18 @@ import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
 
 const StatusReservationModal = ({ show, onHide, onConfirm, reservation }) => {
+  // Return null if no reservation is provided
+  if (!reservation) return null;
+
   const handleConfirm = () => {
     onConfirm(reservation.id);
   };
+
+  const isActive = reservation?.active ?? false;
+  const reservationCode = reservation?.reservationCode ?? '';
+  const clientName = reservation?.client 
+    ? `${reservation.client.firstName || ''} ${reservation.client.lastName || ''}`
+    : '';
 
   return (
     <Modal show={show} onHide={onHide} centered>
@@ -13,9 +22,9 @@ const StatusReservationModal = ({ show, onHide, onConfirm, reservation }) => {
       </Modal.Header>
       <Modal.Body>
         <p>
-          ¿Estás seguro que deseas {reservation.active ? 'desactivar' : 'activar'} la reservación 
-          <strong> {reservation.reservationCode}</strong> del cliente 
-          <strong> {reservation.client.firstName} {reservation.client.lastName}</strong>?
+          ¿Estás seguro que deseas {isActive ? 'desactivar' : 'activar'} la reservación 
+          <strong> {reservationCode}</strong> del cliente 
+          <strong> {clientName}</strong>?
         </p>
       </Modal.Body>
       <Modal.Footer>
@@ -23,10 +32,10 @@ const StatusReservationModal = ({ show, onHide, onConfirm, reservation }) => {
           Cancelar
         </Button>
         <Button 
-          variant={reservation.active ? 'warning' : 'success'} 
+          variant={isActive ? 'warning' : 'success'} 
           onClick={handleConfirm}
         >
-          {reservation.active ? 'Desactivar' : 'Activar'}
+          {isActive ? 'Desactivar' : 'Activar'}
         </Button>
       </Modal.Footer>
     </Modal>

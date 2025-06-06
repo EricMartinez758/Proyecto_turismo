@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 14,
-    marginBottom: 10
+    marginBottom: 5
   },
   section: {
     marginBottom: 10
@@ -64,16 +64,34 @@ const styles = StyleSheet.create({
   priceHeader: {
     fontWeight: 'bold',
     backgroundColor: '#f0f0f0'
+  },
+  canceled: {
+    color: 'red',
+    fontWeight: 'bold',
+    marginTop: 10,
+    textAlign: 'center'
+  },
+   groupMembers: {
+    marginTop: 10,
+  },
+  memberItem: {
+    marginBottom: 5,
+    fontSize: 10,
   }
 });
 
 const InvoicePDF = ({ reservation, total }) => (
+
+    
   <Document>
     <Page size="A4" style={styles.page}>
       <View style={styles.header}>
         <Text style={styles.title}>FACTURA DE RESERVACIÓN</Text>
         <Text style={styles.subtitle}>Código: {reservation.reservationCode}</Text>
         <Text style={styles.subtitle}>Fecha: {reservation.reservationDate}</Text>
+        {reservation.canceled && (
+          <Text style={styles.canceled}>⚠ RESERVACIÓN CANCELADA</Text>
+        )}
       </View>
 
       <View style={styles.section}>
@@ -86,13 +104,31 @@ const InvoicePDF = ({ reservation, total }) => (
           <Text style={styles.label}>Ubicación:</Text>
           <Text style={styles.value}>{reservation.activity.location}</Text>
         </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Cantidad de Personas:</Text>
+          <Text style={styles.value}>{reservation.people || 1}</Text>
+        </View>
       </View>
+      {reservation.groupMembers && reservation.groupMembers.length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Integrantes del Grupo ({reservation.groupMembers.length})</Text>
+          {reservation.groupMembers.map((member, index) => (
+            <View key={index} style={styles.memberItem}>
+              <Text>
+                {member.firstName} {member.lastName} - Cédula: {member.idNumber} - Tel: {member.phone}
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Datos del Cliente</Text>
         <View style={styles.row}>
           <Text style={styles.label}>Nombre:</Text>
-          <Text style={styles.value}>{reservation.client.firstName} {reservation.client.lastName}</Text>
+          <Text style={styles.value}>
+            {reservation.client.firstName} {reservation.client.lastName}
+          </Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>Cédula:</Text>
@@ -110,26 +146,32 @@ const InvoicePDF = ({ reservation, total }) => (
           <Text style={styles.label}>Método de Pago:</Text>
           <Text style={styles.value}>{reservation.paymentMethod}</Text>
         </View>
-        
+
         <View style={styles.priceTable}>
           <View style={[styles.priceRow, styles.priceHeader]}>
             <View style={styles.priceCell}><Text>Moneda</Text></View>
-            <View style={styles.priceCell}><Text>Precio</Text></View>
-            <View style={styles.priceCell}><Text>Tasa (Bs)</Text></View>
-            <View style={styles.priceCell}><Text>Total (Bs)</Text></View>
+            <View style={styles.priceCell}><Text>Precio/Persona</Text></View>
+            <View style={styles.priceCell}><Text>Cantidad</Text></View>
+            <View style={styles.priceCell}><Text>Total</Text></View>
           </View>
-          
+
           <View style={styles.priceRow}>
-            <View style={styles.priceCell}><Text>USD</Text></View>
-            <View style={styles.priceCell}><Text>{reservation.activity.price.USD.toFixed(2)}</Text></View>
-            <View style={styles.priceCell}><Text>36.50</Text></View>
-            <View style={styles.priceCell}><Text>{reservation.activity.price.VES.toFixed(2)}</Text></View>
+            <View style={styles.priceCell}><Text>{reservation.paymentMethod}</Text></View>
+            <View style={styles.priceCell}>
+              <Text>{reservation.activity.price[reservation.paymentMethod].toFixed(2)}</Text>
+            </View>
+            <View style={styles.priceCell}>
+              <Text>{reservation.people || 1}</Text>
+            </View>
+            <View style={styles.priceCell}>
+              <Text>{total.toFixed(2)}</Text>
+            </View>
           </View>
         </View>
       </View>
 
       <View style={styles.total}>
-        <Text>TOTAL A PAGAR: {reservation.activity.price.VES.toFixed(2)} Bs</Text>
+        <Text>TOTAL A PAGAR: {total.toFixed(2)} {reservation.paymentMethod}</Text>
       </View>
     </Page>
   </Document>

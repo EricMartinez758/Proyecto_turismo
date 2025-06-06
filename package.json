@@ -12,6 +12,7 @@
   },
   "license": "MIT",
   "author": "The CoreUI Team (https://github.com/orgs/coreui/people)",
+  "type": "module",
   "scripts": {
     "build": "vite build",
     "lint": "eslint",
@@ -32,6 +33,7 @@
     "chart.js": "^4.4.7",
     "classnames": "^2.5.1",
     "core-js": "^3.40.0",
+    "express": "^5.1.0",
     "lucide-react": "^0.511.0",
     "prop-types": "^15.8.1",
     "react": "^19.0.0",
@@ -40,6 +42,7 @@
     "react-dom": "^19.0.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.1.5",
+    "reactstrap": "^9.2.3",
     "redux": "5.0.1",
     "simplebar-react": "^3.3.0"
   },
