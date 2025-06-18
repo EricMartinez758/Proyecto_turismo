@@ -1,13 +1,4 @@
-import React from 'react'
-import { createRoot } from 'react-dom/client'
-import { Provider } from 'react-redux'
-import 'core-js'
-
-import App from './App'
-import store from './store'
-
-createRoot(document.getElementById('root')).render(
-  <Provider store={store}>
-    <App />
-  </Provider>,
-)
+import app from './app.js'
+app.listen(3001)
+console.log('Server on port 3001')
+import userRoutes from './routes/users.routes.js'; 
