@@ -14,25 +14,26 @@ import {
 import CIcon from '@coreui/icons-react';
 import { cilLockLocked, cilUser } from '@coreui/icons';
 import { useAuth } from '../../../../../src/contexts/authcontexts.js'; 
-import { useNavigate } from 'react-router-dom'; // Para la navegación
+import { useNavigate } from 'react-router-dom';
+import '../../../assets/css/Login.css'; 
 
 const Register = () => {
   const [correo, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [confirmContrasena, setConfirmContrasena] = useState('');
-  const [errorMessage, setErrorMessage] = useState(''); // Para mostrar errores al usuario
-  const [successMessage, setSuccessMessage] = useState(''); // Para mostrar mensaje de éxito
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isNavigatingToLogin, setIsNavigatingToLogin] = useState(false);
 
-  const { login } = useAuth(); // Obtenemos la función login del contexto
-  const navigate = useNavigate(); // Hook para la navegación
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
-    e.preventDefault(); // Previene el comportamiento por defecto del formulario
+    e.preventDefault();
+    setErrorMessage('');
+    setSuccessMessage('');
 
-    setErrorMessage(''); // Limpiar errores anteriores
-    setSuccessMessage(''); // Limpiar mensajes de éxito anteriores
-
-    // Validaciones básicas del lado del cliente
     if (!correo || !contrasena || !confirmContrasena) {
       setErrorMessage('Todos los campos son obligatorios.');
       return;
@@ -43,119 +44,182 @@ const Register = () => {
       return;
     }
 
+    setIsLoading(true);
+    
     try {
-      const response = await fetch('/api/register', { // URL relativa gracias al proxy
+      const response = await fetch('/api/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ correo, contraseña: contrasena }), // Envía correo y contraseña
+        body: JSON.stringify({ correo, contraseña: contrasena }),
       });
 
-      const data = await response.json(); // Parsea la respuesta JSON
+      const data = await response.json();
 
       if (response.ok) {
         setSuccessMessage(data.message || 'Registro exitoso.');
-        // Si el registro fue exitoso y el backend envió la cookie,
-        // necesitamos que el AuthContext sepa que el usuario está logueado.
-        // La función `login` de tu AuthContext simplemente establece el estado `isAuthenticated` y `user`.
-        // El backend en `register` ya está enviando la cookie y el `user` object.
-        // Lo ideal sería que el `AuthContext` tenga una función para "establecer la sesión"
-        // que también pueda ser llamada desde aquí, o simplemente llamar a `login` del contexto
-        // con los datos del usuario.
-
-        login(data.user); // Llama a la función login del AuthContext con los datos del usuario
-
-        // Redirige al usuario al dashboard o a la página principal
-        navigate('/dashboard'); // Ajusta esta ruta si tu dashboard está en otra URL
+        login(data.user);
+        navigate('/dashboard');
       } else {
-        // Manejar errores de la respuesta del backend
         setErrorMessage(data.message || 'Error en el registro.');
       }
     } catch (error) {
       console.error('Error de red o del servidor:', error);
       setErrorMessage('No se pudo conectar con el servidor. Intenta de nuevo más tarde.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  const handleNavigateToLogin = () => {
+    setIsNavigatingToLogin(true);
+    // Animación de 1.5 segundos antes de redirigir
+    setTimeout(() => {
+      navigate('/login');
+    }, 1500);
+  };
+
   return (
-    <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
-      <CContainer>
-        <CRow className="justify-content-center">
-          <CCol md={9} lg={7} xl={6}>
-            <CCard className="mx-4">
-              <CCardBody className="p-4">
-                <CForm onSubmit={handleRegister}> {/* Asociamos la función al evento onSubmit */}
-                  <h1>Register</h1>
-                  <p className="text-body-secondary">Create your account</p>
+    <div className="custom-login-container">
+      {/* Overlay de navegación a login */}
+      {isNavigatingToLogin && (
+        <div className="navigation-overlay">
+          <div className="navigation-spinner">
+            <div className="spinner-border text-light" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+            <p className="mt-3">Redirigiendo a Inicio de Sesión...</p>
+          </div>
+        </div>
+      )}
 
-                  {/* Campo de Correo (anteriormente Username, ya que tu backend solo pide correo) */}
-                  <CInputGroup className="mb-3">
-                    <CInputGroupText>@</CInputGroupText>
-                    <CFormInput
-                      placeholder="Correo electrónico"
-                      autoComplete="email"
-                      type="email" // Importante para validación de email
-                      value={correo}
-                      onChange={(e) => setCorreo(e.target.value)}
-                      required
-                    />
-                  </CInputGroup>
+      {/* Overlay de registro */}
+      {isLoading && (
+        <div className="register-loading-overlay">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-3">Procesando registro...</p>
+        </div>
+      )}
 
-                  {/* Campo de Contraseña */}
-                  <CInputGroup className="mb-3">
-                    <CInputGroupText>
-                      <CIcon icon={cilLockLocked} />
-                    </CInputGroupText>
-                    <CFormInput
-                      type="password"
-                      placeholder="Contraseña"
-                      autoComplete="new-password"
-                      value={contrasena}
-                      onChange={(e) => setContrasena(e.target.value)}
-                      required
-                    />
-                  </CInputGroup>
+      <CRow className="justify-content-center g-0">
+        <CCol  md={9} lg={8} xl={7}>
+          <CRow className="g-0">
+            <CCol md={6}>
+              <CCard className="custom-login-card rounded-0 end-0">
+                <CCardBody className="custom-login-form">
+                  <h1 className="custom-login-title">Registro</h1>
+                  <p className="custom-login-subtitle">Crea tu cuenta</p>
+                  
+                  <CForm onSubmit={handleRegister}>
+                    {/* Campos del formulario... (mantener igual que antes) */}
+                    <CInputGroup className="custom-input-group mb-4">
+                      <CInputGroupText className="custom-input-icon">
+                        <CIcon icon={cilUser} />
+                      </CInputGroupText>
+                      <CFormInput
+                        className="custom-form-input"
+                        placeholder="Correo electrónico"
+                        autoComplete="email"
+                        type="email"
+                        value={correo}
+                        onChange={(e) => setCorreo(e.target.value)}
+                        required
+                      />
+                    </CInputGroup>
 
-                  {/* Campo de Repetir Contraseña */}
-                  <CInputGroup className="mb-4">
-                    <CInputGroupText>
-                      <CIcon icon={cilLockLocked} />
-                    </CInputGroupText>
-                    <CFormInput
-                      type="password"
-                      placeholder="Repetir Contraseña"
-                      autoComplete="new-password"
-                      value={confirmContrasena}
-                      onChange={(e) => setConfirmContrasena(e.target.value)}
-                      required
-                    />
-                  </CInputGroup>
+                    <CInputGroup className="custom-input-group mb-4">
+                      <CInputGroupText className="custom-input-icon">
+                        <CIcon icon={cilLockLocked} />
+                      </CInputGroupText>
+                      <CFormInput
+                        className="custom-form-input"
+                        type="password"
+                        placeholder="Contraseña"
+                        autoComplete="new-password"
+                        value={contrasena}
+                        onChange={(e) => setContrasena(e.target.value)}
+                        required
+                      />
+                    </CInputGroup>
 
-                  {/* Mensajes de error o éxito */}
-                  {errorMessage && (
-                    <div className="alert alert-danger" role="alert">
-                      {errorMessage}
+                    <CInputGroup className="custom-input-group mb-4">
+                      <CInputGroupText className="custom-input-icon">
+                        <CIcon icon={cilLockLocked} />
+                      </CInputGroupText>
+                      <CFormInput
+                        className="custom-form-input"
+                        type="password"
+                        placeholder="Repetir Contraseña"
+                        autoComplete="new-password"
+                        value={confirmContrasena}
+                        onChange={(e) => setConfirmContrasena(e.target.value)}
+                        required
+                      />
+                    </CInputGroup>
+
+                    {errorMessage && (
+                      <div className="alert alert-danger" role="alert">
+                        {errorMessage}
+                      </div>
+                    )}
+                    {successMessage && (
+                      <div className="alert alert-success" role="alert">
+                        {successMessage}
+                      </div>
+                    )}
+
+                    <div className="d-grid">
+                      <CButton 
+                        color="success" 
+                        type="submit" 
+                        className="custom-login-btn"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <>
+                            <span className="custom-spinner spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Creando cuenta...
+                          </>
+                        ) : (
+                          'Crear Cuenta'
+                        )}
+                      </CButton>
                     </div>
-                  )}
-                  {successMessage && (
-                    <div className="alert alert-success" role="alert">
-                      {successMessage}
-                    </div>
-                  )}
-
-                  <div className="d-grid">
-                    {/* El botón ahora es type="submit" para que onSubmit se dispare */}
-                    <CButton color="success" type="submit">
-                      Create Account
-                    </CButton>
-                  </div>
-                </CForm>
-              </CCardBody>
-            </CCard>
-          </CCol>
-        </CRow>
-      </CContainer>
+                  </CForm>
+                </CCardBody>
+              </CCard>
+            </CCol>
+            
+            <CCol md={6}>
+              <CCard className="custom-primary-card h-100 rounded-start-0">
+                <CCardBody className="d-flex flex-column justify-content-center align-items-center text-center p-5">
+                  <h2 className="custom-register-title">¡Bienvenido!</h2>
+                  <p className="custom-register-text">
+                    ¿Ya tienes una cuenta? Inicia sesión para acceder a todas las funcionalidades de nuestra plataforma.
+                  </p>
+                  <CButton 
+                    className="custom-register-btn" 
+                    onClick={handleNavigateToLogin}
+                    disabled={isNavigatingToLogin}
+                  >
+                    {isNavigatingToLogin ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Redirigiendo...
+                      </>
+                    ) : (
+                      'Iniciar Sesión'
+                    )}
+                  </CButton>
+                </CCardBody>
+              </CCard>
+            </CCol>
+          </CRow>
+        </CCol>
+      </CRow>
     </div>
   );
 };
