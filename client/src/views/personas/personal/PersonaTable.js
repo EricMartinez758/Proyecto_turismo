@@ -4,9 +4,9 @@ import { Table, Badge } from 'react-bootstrap';
 const PersonaTable = ({ personas, onEdit, onToggleActive }) => {
     const getTipoPersonaBadge = (tipo) => {
         const variants = {
-            guia: 'primary',
-            administrativo: 'info',
-            obrero: 'warning'
+            Guia: 'primary',
+            Administrativo: 'info',
+            Obrero: 'warning'
         };
         return <Badge bg={variants[tipo]}>{tipo}</Badge>;
     };
