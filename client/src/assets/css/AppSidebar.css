@@ -1,0 +1,111 @@
+/* Paleta de colores basada en COTATUR */
+
+@import url('https://fonts.googleapis.com/css2?family=Concert+One&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Savate:ital,wght@0,200..900;1,200..900&display=swap');
+:root {
+   --sidebar-bg: #00000000; 
+  --header-bg: #0e41156a;           /*  Header y footer */
+  --accent-color: #0b4817b7;        /* Hover y acentos */
+  --active-bg: #194f24;           /*  Item activo */
+  --text-primary: #ffffff;        /* Texto blanco */
+  --text-secondary: #0404ff;      /* Texto secundario  */
+  --icon-color: #FF9800;          /* para iconos */
+}
+
+/* Estructura principal */
+.custom-sidebar {
+  background-image: url('../images/beautiful-scenery-breathtaking-sunset-montesinho-natural-park-portugal.jpg'); /* Cambia por tu ruta real */
+  background-size: cover; 
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: rgba(0, 59, 37, 0.348); /* Color base por si la imagen no carga */
+  color: var(--text-primary);
+  backdrop-filter: brightness(0.7); /* Oscurece un poco para contraste */
+  border-right: 1px solid var(--border-color) !important;
+  transition: all 0.3s ease;
+}
+.custom-sidebar .nav-group {
+  color: #ffffff !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  padding-left: 1rem;
+  opacity: 0.9;
+  background-color: #194f24;
+}
+
+/* Encabezado */
+.custom-sidebar .sidebar-header {
+  background-color: var(--header-bg) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  padding: 1rem;
+}
+
+/* Logo */
+.custom-sidebar .sidebar-brand img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+
+
+/* Items del menú */
+.custom-sidebar .sidebar-nav {
+  --cui-sidebar-nav-link-color: var(--text-primary);
+  --cui-sidebar-nav-link-hover-bg: var(--accent-color);
+  --cui-sidebar-nav-link-hover-color: var(--text-primary);
+  --cui-sidebar-nav-link-active-bg: var(--active-bg);
+  --cui-sidebar-nav-link-active-color: var(--text-primary);
+}
+
+/* Iconos */
+.custom-sidebar .nav-icon {
+  color: var(--icon-color);
+  transition: color 0.2s ease;
+}
+.custom-sidebar .nav-link {
+  font-weight: bold;
+   font-family: "JetBrains Mono", monospace;
+}
+
+
+/* Efecto hover */
+.custom-sidebar .nav-link:hover {
+  background-color: var(--accent-color) !important;
+}
+
+/* Item activo */
+.custom-sidebar .nav-link.active {
+  background-color: var(--active-bg) !important;
+  font-weight: 500;
+}
+
+/* Footer */
+.custom-sidebar .sidebar-footer {
+  background-color: var(--header-bg) !important;
+  border-top: 1px solid var(--border-color) !important;
+  padding: 0.5rem;
+}
+
+/* Botón de toggle */
+.custom-sidebar .sidebar-toggler {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: none;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.custom-sidebar .sidebar-toggler:hover {
+  color: var(--text-primary);
+  background-color: var(--accent-color);
+}
+
+/* Botón de cerrar en móviles */
+.custom-sidebar .btn-close {
+  filter: opacity(0.7);
+}

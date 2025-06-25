@@ -24,6 +24,7 @@ import {
   cilMoon,
   cilSun,
 } from '@coreui/icons'
+import '../assets/css/AppHeader.css' 
 
 import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
@@ -43,21 +44,21 @@ const AppHeader = () => {
   }, [])
 
   return (
-    <CHeader position="sticky" className="mb-4 p-0" ref={headerRef}>
-      <CContainer className="border-bottom px-4" fluid>
+    <CHeader position="sticky" className="mb-4 p-0 app-header" ref={headerRef}>
+      <CContainer className="border-bottom px-4 text-white" fluid>
         <CHeaderToggler
           onClick={() => dispatch({ type: 'set', sidebarShow: !sidebarShow })}
-          style={{ marginInlineStart: '-14px' }}
+          className="header-toggler"
         >
           <CIcon icon={cilMenu} size="lg" />
         </CHeaderToggler>
         
-        <CHeaderNav>
+        <CHeaderNav style={{ color: 'white' }}>
           <li className="nav-item py-1">
-            <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
+            <div className="vr h-100 mx-2 vr-divider"></div>
           </li>
           <CDropdown variant="nav-item" placement="bottom-end">
-            <CDropdownToggle caret={false}>
+            <CDropdownToggle caret={false} className="dropdown-toggle">
               {colorMode === 'dark' ? (
                 <CIcon icon={cilMoon} size="lg" />
               ) : colorMode === 'auto' ? (
@@ -66,10 +67,10 @@ const AppHeader = () => {
                 <CIcon icon={cilSun} size="lg" />
               )}
             </CDropdownToggle>
-            <CDropdownMenu>
+            <CDropdownMenu className="dropdown-menu">
               <CDropdownItem
                 active={colorMode === 'light'}
-                className="d-flex align-items-center"
+                className="d-flex align-items-center dropdown-item"
                 as="button"
                 type="button"
                 onClick={() => setColorMode('light')}
@@ -78,7 +79,7 @@ const AppHeader = () => {
               </CDropdownItem>
               <CDropdownItem
                 active={colorMode === 'dark'}
-                className="d-flex align-items-center"
+                className="d-flex align-items-center dropdown-item"
                 as="button"
                 type="button"
                 onClick={() => setColorMode('dark')}
@@ -87,7 +88,7 @@ const AppHeader = () => {
               </CDropdownItem>
               <CDropdownItem
                 active={colorMode === 'auto'}
-                className="d-flex align-items-center"
+                className="d-flex align-items-center dropdown-item"
                 as="button"
                 type="button"
                 onClick={() => setColorMode('auto')}
@@ -97,12 +98,12 @@ const AppHeader = () => {
             </CDropdownMenu>
           </CDropdown>
           <li className="nav-item py-1">
-            <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
+            <div className="vr h-100 mx-2 vr-divider"></div>
           </li>
           <AppHeaderDropdown />
         </CHeaderNav>
       </CContainer>
-      <CContainer className="px-4" fluid>
+      <CContainer className="px-4 app-header" fluid>
         <AppBreadcrumb />
       </CContainer>
     </CHeader>

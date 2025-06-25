@@ -1,0 +1,39 @@
+
+.app-header {
+  background-color: #0e581d; 
+  color: #ffffff;
+}
+
+.app-header .dropdown-item {
+  color: #ffffff !important; /* Fuerza texto blanco en items */
+}
+.app-header .header-toggler {
+  margin-inline-start: -14px;
+  color: #ccff02ce;
+}
+
+.app-header .vr-divider {
+  background-color: #ccff02ce;
+  opacity: 0.5;
+}
+/* Estilo adicional para el breadcrumb si es necesario */
+.app-header .breadcrumb {
+  color: #ffffff;
+}
+
+.app-header .dropdown-toggle {
+  color: #fbff0c;
+}
+
+.app-header .dropdown-menu {
+  background-color: #0b4817b7;
+  border-color: #ffffff;
+}
+
+.app-header .dropdown-item {
+  color: #ffffff;
+}
+
+.app-header .dropdown-item.active {
+  background-color: #9cb20b;
+}

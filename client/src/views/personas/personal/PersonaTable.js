@@ -20,7 +20,7 @@ const PersonaTable = ({ personas, onEdit, onToggleActive }) => {
     };
 
     return (
-        <Table responsive>
+        <Table>
             <thead>
                 <tr>
                     <th>Nombres</th>

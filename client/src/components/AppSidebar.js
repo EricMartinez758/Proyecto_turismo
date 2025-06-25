@@ -1,6 +1,5 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-
 import {
   CCloseButton,
   CSidebar,
@@ -8,16 +7,12 @@ import {
   CSidebarFooter,
   CSidebarHeader,
   CSidebarToggler,
+  CImage
 } from '@coreui/react'
-import CIcon from '@coreui/icons-react'
 
 import { AppSidebarNav } from './AppSidebarNav'
-
-// import { logo } from 'src/assets/brand/logo'
-// import { sygnet } from 'src/assets/brand/sygnet'
-
-// sidebar nav config
 import navigation from '../_nav'
+import '../assets/css/AppSidebar.css'
 
 const AppSidebar = () => {
   const dispatch = useDispatch()
@@ -26,8 +21,7 @@ const AppSidebar = () => {
 
   return (
     <CSidebar
-      className="border-end"
-      colorScheme="dark"
+      className="custom-sidebar"
       position="fixed"
       unfoldable={unfoldable}
       visible={sidebarShow}
@@ -35,20 +29,21 @@ const AppSidebar = () => {
         dispatch({ type: 'set', sidebarShow: visible })
       }}
     >
-      <CSidebarHeader className="border-bottom">
-        {/* <CSidebarBrand to="/">
-          <CIcon customClassName="sidebar-brand-full" icon={logo} height={32} />
-          <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={32} />
+      <CSidebarHeader className="sidebar-header">
+        <CSidebarBrand className="sidebar-brand" to="/">
+          <CImage align='center' src='src/assets/logo.png' height={150} />
         </CSidebarBrand>
         <CCloseButton
           className="d-lg-none"
-          dark
           onClick={() => dispatch({ type: 'set', sidebarShow: false })}
-        /> */}
+        />
       </CSidebarHeader>
+      
       <AppSidebarNav items={navigation} />
-      <CSidebarFooter className="border-top d-none d-lg-flex">
-        <CSidebarToggler
+      
+      <CSidebarFooter className="sidebar-footer d-none d-lg-flex">
+        <CSidebarToggler 
+          className="sidebar-toggler"
           onClick={() => dispatch({ type: 'set', sidebarUnfoldable: !unfoldable })}
         />
       </CSidebarFooter>
