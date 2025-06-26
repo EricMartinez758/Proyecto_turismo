@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, Button, Table, Badge } from 'react-bootstrap';
+import React, { useState } from 'react';
+
 
 const bancosVenezolanos = [
     'Banco de Venezuela',
@@ -31,7 +31,7 @@ const bancosVenezolanos = [
     'Instituto Municipal de Crédito Popular'
 ];
 
-const PersonaForm = ({ persona, handleChange, onAddHistorialMedico, onRemoveHistorialMedico, onUpdateHistorialMedico, onSubmit }) => {
+const PersonaForm = ({ persona, handleChange, onAddHistorialMedico, onRemoveHistorialMedico, onUpdateHistorialMedico }) => {
 
     const handleBankAccountChange = (e) => {
         const value = e.target.value.replace(/\D/g, ''); // Solo números
@@ -46,7 +46,6 @@ const PersonaForm = ({ persona, handleChange, onAddHistorialMedico, onRemoveHist
         }
     };
 
-    // Ensure historialMedico is always an array
     const historialMedico = Array.isArray(persona.historialMedico) ? persona.historialMedico : [];
 
     return (
@@ -202,7 +201,7 @@ const PersonaForm = ({ persona, handleChange, onAddHistorialMedico, onRemoveHist
                             <button
                                 type="button"
                                 className="btn btn-success btn-sm"
-                                onClick={onAddHistorialMedico}
+                                onClick={onAddHistorialMedico} // This will now correctly call the parent's function
                             >
                                 <i className="fas fa-plus me-1"></i>
                                 Agregar Condición Médica
@@ -222,7 +221,7 @@ const PersonaForm = ({ persona, handleChange, onAddHistorialMedico, onRemoveHist
                                         <button
                                             type="button"
                                             className="btn btn-danger btn-sm"
-                                            onClick={() => onRemoveHistorialMedico(index)}
+                                            onClick={() => onRemoveHistorialMedico(index)} // Correctly calls parent's function
                                         >
                                             <i className="fas fa-trash"></i>
                                         </button>
@@ -325,306 +324,9 @@ const PersonaForm = ({ persona, handleChange, onAddHistorialMedico, onRemoveHist
                             ))
                         )}
                     </div>
-
-                    <div className="d-grid gap-2">
-                        <button
-                            type="button"
-                            className="btn btn-primary"
-                            onClick={onSubmit}
-                        >
-                            <i className="fas fa-save me-1"></i>
-                            Guardar Persona
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
     );
 };
-
-const PersonaModalCreate = ({ show, onHide, onSuccess }) => {
-    const [persona, setPersona] = useState({
-        nombres: '',
-        apellidos: '',
-        numeroDocumento: '',
-        fechaNacimiento: '',
-        telefono: '',
-        tipoPersona: '',
-        direccion: '',
-        banco: '',
-        numeroCuentaBancaria: '',
-        historialMedico: [],
-        activo: true
-    });
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setPersona(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
-
-    const handleAddHistorialMedico = () => {
-        const nuevaCondicion = {
-            diagnostico: '',
-            fechaDiagnostico: '',
-            medicamento: '',
-            dosis: '',
-            medicoTratante: '',
-            observaciones: '',
-            estado: '',
-            prioridad: ''
-        };
-        setPersona(prev => ({
-            ...prev,
-            historialMedico: [...prev.historialMedico, nuevaCondicion]
-        }));
-    };
-
-    const handleRemoveHistorialMedico = (index) => {
-        setPersona(prev => ({
-            ...prev,
-            historialMedico: prev.historialMedico.filter((_, i) => i !== index)
-        }));
-    };
-
-    const handleUpdateHistorialMedico = (index, campo, valor) => {
-        setPersona(prev => ({
-            ...prev,
-            historialMedico: prev.historialMedico.map((condicion, i) =>
-                i === index
-                    ? { ...condicion, [campo]: valor }
-                    : condicion
-            )
-        }));
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const newPersona = {
-            ...persona,
-            _id: Date.now().toString()
-        };
-        onSuccess(newPersona);
-        setPersona({
-            nombres: '',
-            apellidos: '',
-            numeroDocumento: '',
-            fechaNacimiento: '',
-            telefono: '',
-            tipoPersona: '',
-            direccion: '',
-            banco: '',
-            numeroCuentaBancaria: '',
-            historialMedico: [],
-            activo: true
-        });
-    };
-
-    return (
-        <Modal show={show} onHide={onHide} size="lg">
-            <Modal.Header closeButton>
-                <Modal.Title>Crear Nueva Persona</Modal.Title>
-            </Modal.Header>
-            <form onSubmit={handleSubmit}>
-                <Modal.Body>
-                    <PersonaForm
-                        persona={persona}
-                        handleChange={handleChange}
-                        onAddHistorialMedico={handleAddHistorialMedico}
-                        onRemoveHistorialMedico={handleRemoveHistorialMedico}
-                        onUpdateHistorialMedico={handleUpdateHistorialMedico}
-                        onSubmit={handleSubmit}
-                    />
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={onHide}>
-                        Cancelar
-                    </Button>
-                    <Button variant="primary" type="submit">
-                        Guardar
-                    </Button>
-                </Modal.Footer>
-            </form>
-        </Modal>
-    );
-};
-
-const PersonaModalEdit = ({ show, onHide, persona: initialPersona, onSuccess }) => {
-    const [persona, setPersona] = useState({
-        nombres: '',
-        apellidos: '',
-        numeroDocumento: '',
-        fechaNacimiento: '',
-        telefono: '',
-        tipoPersona: '',
-        direccion: '',
-        banco: '',
-        numeroCuentaBancaria: '',
-        historialMedico: [],
-        activo: true
-    });
-
-    useEffect(() => {
-        if (initialPersona) {
-            setPersona({
-                ...initialPersona,
-                historialMedico: initialPersona.historialMedico || []
-            });
-        }
-    }, [initialPersona]);
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setPersona(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
-
-    const handleAddHistorialMedico = () => {
-        const nuevaCondicion = {
-            diagnostico: '',
-            fechaDiagnostico: '',
-            medicamento: '',
-            dosis: '',
-            medicoTratante: '',
-            observaciones: '',
-            estado: '',
-            prioridad: ''
-        };
-        setPersona(prev => ({
-            ...prev,
-            historialMedico: [...prev.historialMedico, nuevaCondicion]
-        }));
-    };
-
-    const handleRemoveHistorialMedico = (index) => {
-        setPersona(prev => ({
-            ...prev,
-            historialMedico: prev.historialMedico.filter((_, i) => i !== index)
-        }));
-    };
-
-    const handleUpdateHistorialMedico = (index, campo, valor) => {
-        setPersona(prev => ({
-            ...prev,
-            historialMedico: prev.historialMedico.map((condicion, i) =>
-                i === index
-                    ? { ...condicion, [campo]: valor }
-                    : condicion
-            )
-        }));
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onSuccess(persona);
-    };
-
-    return (
-        <Modal show={show} onHide={onHide} size="lg">
-            <Modal.Header closeButton>
-                <Modal.Title>Editar Persona</Modal.Title>
-            </Modal.Header>
-            <form onSubmit={handleSubmit}>
-                <Modal.Body>
-                    <PersonaForm
-                        persona={persona}
-                        handleChange={handleChange}
-                        onAddHistorialMedico={handleAddHistorialMedico}
-                        onRemoveHistorialMedico={handleRemoveHistorialMedico}
-                        onUpdateHistorialMedico={handleUpdateHistorialMedico}
-                        onSubmit={handleSubmit}
-                    />
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={onHide}>
-                        Cancelar
-                    </Button>
-                    <Button variant="primary" type="submit">
-                        Guardar Cambios
-                    </Button>
-                </Modal.Footer>
-            </form>
-        </Modal>
-    );
-};
-
-const PersonaTable = ({ personas, onEdit, onToggleActive }) => {
-    const getTipoPersonaBadge = (tipo) => {
-        const variants = {
-            guia: 'primary',
-            administrativo: 'info',
-            obrero: 'warning',
-            conductor: 'secondary'
-        };
-        return <Badge bg={variants[tipo]}>{tipo}</Badge>;
-    };
-
-    const getEstadoBadge = (activo) => {
-        return activo ? (
-            <Badge bg="success">Activo</Badge>
-        ) : (
-            <Badge bg="danger">Inactivo</Badge>
-        );
-    };
-
-    const formatCuentaBancaria = (cuenta) => {
-        if (!cuenta) return 'No registrada';
-        return `****-****-****-${cuenta.slice(-4)}`;
-    };
-
-    return (
-        <Table striped bordered hover responsive>
-            <thead>
-                <tr>
-                    <th>Nombres</th>
-                    <th>Apellidos</th>
-                    <th>Documento</th>
-                    <th>Tipo</th>
-                    <th>Teléfono</th>
-                    <th>Banco</th>
-                    <th>Cuenta</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {personas.map((persona) => (
-                    <tr key={persona._id}>
-                        <td>{persona.nombres}</td>
-                        <td>{persona.apellidos}</td>
-                        <td>{persona.numeroDocumento}</td>
-                        <td>{getTipoPersonaBadge(persona.tipoPersona)}</td>
-                        <td>{persona.telefono}</td>
-                        <td>
-                            <small>{persona.banco || 'No registrado'}</small>
-                        </td>
-                        <td>
-                            <small>{formatCuentaBancaria(persona.numeroCuentaBancaria)}</small>
-                        </td>
-                        <td>{getEstadoBadge(persona.activo)}</td>
-                        <td>
-                            <button
-                                className="btn btn-sm btn-primary me-2"
-                                onClick={() => onEdit(persona)}
-                            >
-                                Editar
-                            </button>
-                            <button
-                                className={`btn btn-sm ${persona.activo ? 'btn-danger' : 'btn-success'}`}
-                                onClick={() => onToggleActive(persona)}
-                            >
-                                {persona.activo ? 'Desactivar' : 'Activar'}
-                            </button>
-                        </td>
-                    </tr>
-                ))}
-            </tbody>
-        </Table>
-    );
-};
-
-export default PersonaForm
+export default PersonaForm;
