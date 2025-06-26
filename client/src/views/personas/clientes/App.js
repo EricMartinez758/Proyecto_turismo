@@ -1,56 +1,92 @@
-import React, { useState, Component } from 'react';
+import React, { useState } from 'react';
 import { CContainer } from '@coreui/react';
 import PersonaTable from './PersonaTable';
 import PersonaModalCreate from './PersonaModalCreate';
 import PersonaModalEdit from './PersonaModalEdit';
 import PersonaModalToggleActive from './PersonaModalToggleActivate';
+import PersonaModalDetalles from './PersonaModalDetalles';
 
 // Datos fríos iniciales
 const initialPersonas = [
     {
         _id: '1',
-        nombres: 'Juan',
-        apellidos: 'Pérez',
+        primerNombre: 'Juan',
+        segundoNombre: 'Carlos',
+        primerApellido: 'Pérez',
+        segundoApellido: 'González',
         numeroDocumento: '12345678',
         fechaNacimiento: '1990-05-15',
+        nacionalidad: 'Venezolano',
         telefono: '5551234',
-        tipoPersona: 'guia',
         direccion: 'Calle 123, Ciudad',
-        historialMedico: {
-            tipoNecesidadMedica: 'alergias',
-            descripcion: 'Alergia a los mariscos'
-        },
+        historialMedico: [
+            {
+                tipo: 'alergia',
+                descripcion: 'Alergia a los mariscos'
+            }
+        ],
         activo: true
     },
     {
         _id: '2',
-        nombres: 'María',
-        apellidos: 'Gómez',
+        primerNombre: 'María',
+        segundoNombre: 'Isabel',
+        primerApellido: 'Gómez',
+        segundoApellido: 'López',
         numeroDocumento: '87654321',
         fechaNacimiento: '1985-10-22',
+        nacionalidad: 'Colombiana',
         telefono: '5555678',
-        tipoPersona: 'administrativo',
         direccion: 'Avenida Principal 456',
-        historialMedico: {
-            tipoNecesidadMedica: 'medicamentos',
-            descripcion: 'Toma medicamento para la presión'
-        },
+        historialMedico: [
+            {
+                tipo: 'medicamento',
+                descripcion: 'Toma medicamento para la presión'
+            }
+        ],
         activo: true
     },
     {
         _id: '3',
-        nombres: 'Carlos',
-        apellidos: 'Rodríguez',
+        primerNombre: 'Carlos',
+        segundoNombre: 'Alberto',
+        primerApellido: 'Rodríguez',
+        segundoApellido: 'Martínez',
         numeroDocumento: '56781234',
         fechaNacimiento: '1978-03-30',
+        nacionalidad: 'Ecuatoriano',
         telefono: '5559012',
-        tipoPersona: 'obrero',
         direccion: 'Carrera 7 # 45-89',
-        historialMedico: {
-            tipoNecesidadMedica: 'discapacidad',
-            descripcion: 'Discapacidad auditiva parcial'
-        },
+        historialMedico: [
+            {
+                tipo: 'discapacidad',
+                descripcion: 'Discapacidad auditiva parcial'
+            }
+        ],
         activo: false
+    },
+    {
+        _id: '4',
+        primerNombre: 'Ana',
+        segundoNombre: 'María',
+        primerApellido: 'Fernández',
+        segundoApellido: '',
+        numeroDocumento: '34567890',
+        fechaNacimiento: '1992-07-18',
+        nacionalidad: 'Peruana',
+        telefono: '5553456',
+        direccion: 'Calle 56 # 12-34',
+        historialMedico: [
+            {
+                tipo: 'medicamento',
+                descripcion: 'Insulina diaria'
+            },
+            {
+                tipo: 'alergia',
+                descripcion: 'Alergia a la penicilina'
+            }
+        ],
+        activo: true
     }
 ];
 
@@ -60,6 +96,7 @@ const App = () => {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showToggleActiveModal, setShowToggleActiveModal] = useState(false);
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
 
     const handleCreateSuccess = (newPersona) => {
         setPersonas([...personas, newPersona]);
@@ -82,7 +119,6 @@ const App = () => {
 
     return (
         <CContainer>
-          
             <button
                 className="btn btn-primary mb-3"
                 onClick={() => setShowCreateModal(true)}
@@ -100,8 +136,13 @@ const App = () => {
                     setSelectedPersona(persona);
                     setShowToggleActiveModal(true);
                 }}
+                onShowDetails={(persona) => {
+                    setSelectedPersona(persona);
+                    setShowDetailsModal(true);
+                }}
             />
 
+            {/* Modals */}
             <PersonaModalCreate
                 show={showCreateModal}
                 onHide={() => setShowCreateModal(false)}
@@ -119,6 +160,12 @@ const App = () => {
                 show={showToggleActiveModal}
                 onHide={() => setShowToggleActiveModal(false)}
                 onSuccess={() => handleToggleActiveSuccess(selectedPersona?._id)}
+                persona={selectedPersona}
+            />
+
+            <PersonaModalDetalles
+                show={showDetailsModal}
+                handleClose={() => setShowDetailsModal(false)}
                 persona={selectedPersona}
             />
         </CContainer>

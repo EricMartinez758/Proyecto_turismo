@@ -1,16 +1,7 @@
 import React from 'react';
 import { Table, Badge } from 'react-bootstrap';
 
-const PersonaTable = ({ personas, onEdit, onToggleActive }) => {
-    const getTipoPersonaBadge = (tipo) => {
-        const variants = {
-            guia: 'primary',
-            administrativo: 'info',
-            obrero: 'warning'
-        };
-        return <Badge bg={variants[tipo]}>{tipo}</Badge>;
-    };
-
+const PersonaTable = ({ personas, onEdit, onToggleActive, onShowDetails }) => {
     const getEstadoBadge = (activo) => {
         return activo ? (
             <Badge bg="success">Activo</Badge>
@@ -20,11 +11,11 @@ const PersonaTable = ({ personas, onEdit, onToggleActive }) => {
     };
 
     return (
-        <Table responsive>
+        <Table responsive striped hover>
             <thead>
                 <tr>
-                    <th>Nombres</th>
-                    <th>Apellidos</th>
+                    <th>Primer Nombre</th>
+                    <th>Primer Apellido</th>
                     <th>Documento</th>
                     <th>Teléfono</th>
                     <th>Estado</th>
@@ -34,23 +25,29 @@ const PersonaTable = ({ personas, onEdit, onToggleActive }) => {
             <tbody>
                 {personas.map((persona) => (
                     <tr key={persona._id}>
-                        <td>{persona.nombres}</td>
-                        <td>{persona.apellidos}</td>
+                        <td>{persona.primerNombre}</td>
+                        <td>{persona.primerApellido}</td>
                         <td>{persona.numeroDocumento}</td>
                         <td>{persona.telefono}</td>
                         <td>{getEstadoBadge(persona.activo)}</td>
                         <td>
                             <button
+                                className="btn btn-sm btn-info me-2"
+                                onClick={() => onShowDetails(persona)}
+                            >
+                                <i className="fas fa-eye"></i> Detalles
+                            </button>
+                            <button
                                 className="btn btn-sm btn-primary me-2"
                                 onClick={() => onEdit(persona)}
                             >
-                                Editar
+                                <i className="fas fa-edit"></i> Editar
                             </button>
                             <button
                                 className={`btn btn-sm ${persona.activo ? 'btn-danger' : 'btn-success'}`}
                                 onClick={() => onToggleActive(persona)}
                             >
-                                {persona.activo ? 'Desactivar' : 'Activar'}
+                                {persona.activo ? <><i className="fas fa-ban"></i> Desactivar</> : <><i className="fas fa-check"></i> Activar</>}
                             </button>
                         </td>
                     </tr>
