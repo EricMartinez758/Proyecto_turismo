@@ -87,7 +87,7 @@ const PersonaModalCreate = ({ show, onHide, onSuccess }) => {
     return (
         <Modal show={show} onHide={onHide} size="lg">
             <Modal.Header closeButton>
-                <Modal.Title>Crear Nueva Persona</Modal.Title>
+                <Modal.Title>Registro de personal</Modal.Title>
             </Modal.Header>
             <form onSubmit={handleSubmit}>
                 <Modal.Body>
@@ -104,7 +104,7 @@ const PersonaModalCreate = ({ show, onHide, onSuccess }) => {
                     <Button variant="secondary" onClick={onHide}>
                         Cancelar
                     </Button>
-                    <Button variant="primary" type="submit">
+                    <Button variant="primary" className='btn-primary-persona' type="submit">
                         Guardar
                     </Button>
                 </Modal.Footer>

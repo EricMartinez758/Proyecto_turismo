@@ -4,58 +4,64 @@ import PersonaTable from './PersonaTable';
 import PersonaModalCreate from './PersonaModalCreate';
 import PersonaModalEdit from './PersonaModalEdit';
 import PersonaModalToggleActive from './PersonaModalToggleActivate';
+import PersonaModalView from './PersonaModalView';
+import '../../../assets/css/persona.css';
 
 const initialPersonas = [
-    {
-        _id: '1',
-        nombres: 'Juan',
-        apellidos: 'Pérez',
+    { _id: '1',
+        primerNombre: 'Juan',
+        segundoNombre: '',
+        primerApellido: 'Pérez',
+        segundoApellido: '',
         numeroDocumento: '12345678',
         fechaNacimiento: '1990-05-15',
         telefono: '5551234',
-        tipoPersona: 'guia',
+        tipoPersona: 'Guia',
         direccion: 'Calle 123, Ciudad',
         banco: 'Banco de Venezuela',
         numeroCuentaBancaria: '01020123456789012345',
-        historialMedico: {
-            tipoNecesidadMedica: 'alergias',
-            descripcion: 'Alergia a los mariscos'
-        },
+        historialMedico: [
+            {
+                tipo: 'alergias',
+                descripcion: 'Alergia a los mariscos'
+            }
+        ],
         activo: true
     },
-    {
-        _id: '2',
-        nombres: 'María',
-        apellidos: 'Gómez',
+    { _id: '2',
+        primerNombre: 'María',
+        segundoNombre: 'Elena',
+        primerApellido: 'Gómez',
+        segundoApellido: 'López',
         numeroDocumento: '87654321',
-        fechaNacimiento: '1985-10-22',
-        telefono: '5555678',
-        tipoPersona: 'administrativo',
-        direccion: 'Avenida Principal 456',
-        banco: 'Banesco',
-        numeroCuentaBancaria: '01340987654321098765',
-        historialMedico: {
-            tipoNecesidadMedica: 'medicamentos',
-            descripcion: 'Toma medicamento para la presión'
-        },
+        fechaNacimiento: '1985-08-20',
+        telefono: '5556789',
+        tipoPersona: 'Conductor',
+        direccion: 'Avenida 456, Ciudad',
+        banco: 'Banco Mercantil',
+        numeroCuentaBancaria: '01020345678901234567',
+        historialMedico: [
+            {
+                tipo: 'enfermedad crónica',
+                descripcion: 'Diabetes tipo 2'
+            }
+        ],
         activo: true
     },
-    {
-        _id: '3',
-        nombres: 'Carlos',
-        apellidos: 'Rodríguez',
-        numeroDocumento: '56781234',
-        fechaNacimiento: '1978-03-30',
-        telefono: '5559012',
-        tipoPersona: 'obrero',
-        direccion: 'Carrera 7 # 45-89',
-        banco: 'Banco Mercantil',
-        numeroCuentaBancaria: '01050123456789012345',
-        historialMedico: {
-            tipoNecesidadMedica: 'discapacidad',
-            descripcion: 'Discapacidad auditiva parcial'
-        },
-        activo: false
+    { _id: '3',
+        primerNombre: 'Carlos',
+        segundoNombre: 'Andrés',
+        primerApellido: 'Martínez',
+        segundoApellido: '',
+        numeroDocumento: '11223344',
+        fechaNacimiento: '1992-12-01',
+        telefono: '5559876',
+        tipoPersona: 'Administrativo',
+        direccion: 'Calle 789, Ciudad',
+        banco: 'Banco Provincial',
+        numeroCuentaBancaria: '01020456789012345678',
+        historialMedico: [],
+        activo: true
     }
 ];
 
@@ -65,6 +71,7 @@ const App = () => {
     const [selectedPersona, setSelectedPersona] = useState(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [showViewModal, setShowViewModal] = useState(false);
     const [showToggleActiveModal, setShowToggleActiveModal] = useState(false);
 
     const handleCreateSuccess = (newPersona) => {
@@ -73,7 +80,7 @@ const App = () => {
     };
 
     const handleEditSuccess = (updatedPersona) => {
-        setPersonas(personas.map(p =>
+        setPersonas(personas.map(p => 
             p._id === updatedPersona._id ? updatedPersona : p
         ));
         setShowEditModal(false);
@@ -88,39 +95,48 @@ const App = () => {
 
     return (
         <CContainer>
-
             <button
                 className="btn btn-primary mb-3"
                 onClick={() => setShowCreateModal(true)}
             >
                 Crear Persona
             </button>
-
+            
             <PersonaTable
                 personas={personas}
                 onEdit={(persona) => {
                     setSelectedPersona(persona);
                     setShowEditModal(true);
                 }}
+                onView={(persona) => {
+                    setSelectedPersona(persona);
+                    setShowViewModal(true);
+                }}
                 onToggleActive={(persona) => {
                     setSelectedPersona(persona);
                     setShowToggleActiveModal(true);
                 }}
             />
-
+            
             <PersonaModalCreate
                 show={showCreateModal}
                 onHide={() => setShowCreateModal(false)}
                 onSuccess={handleCreateSuccess}
             />
-
+            
             <PersonaModalEdit
                 show={showEditModal}
                 onHide={() => setShowEditModal(false)}
                 onSuccess={handleEditSuccess}
                 persona={selectedPersona}
             />
-
+            
+            <PersonaModalView
+                show={showViewModal}
+                onHide={() => setShowViewModal(false)}
+                persona={selectedPersona}
+            />
+            
             <PersonaModalToggleActive
                 show={showToggleActiveModal}
                 onHide={() => setShowToggleActiveModal(false)}
@@ -130,5 +146,6 @@ const App = () => {
         </CContainer>
     );
 };
+
 
 export default App;

@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-
+const tiposPersona = [
+    { value: 'administrativo', label: 'Administrativo' },
+    { value: 'guia', label: 'Guía' },
+    { value: 'conductor', label: 'Conductor' },
+    { value: 'obrero', label: 'Obrero' }
+];
 
 const bancosVenezolanos = [
     'Banco de Venezuela',
@@ -49,31 +54,51 @@ const PersonaForm = ({ persona, handleChange, onAddHistorialMedico, onRemoveHist
     const historialMedico = Array.isArray(persona.historialMedico) ? persona.historialMedico : [];
 
     return (
-        <div className="card">
+        <div className="persona-form card mb-3">
             <div className="card-body">
                 <div>
-                    {/* Información Personal */}
+                    {/* Información Personal  */}
                     <div className="row mb-3">
-                        <div className="col-md-6">
-                            <label className="form-label">Nombres</label>
+                        <div className="col-md-3">
+                            <label className="form-label">Primer Nombre</label>
                             <input
                                 type="text"
                                 className="form-control"
-                                name="nombres"
-                                value={persona.nombres || ''}
+                                name="primerNombre"
+                                value={persona.primerNombre}
                                 onChange={handleChange}
                                 required
                             />
                         </div>
-                        <div className="col-md-6">
-                            <label className="form-label">Apellidos</label>
+                        <div className="col-md-3">
+                            <label className="form-label">Segundo Nombre</label>
                             <input
                                 type="text"
                                 className="form-control"
-                                name="apellidos"
-                                value={persona.apellidos || ''}
+                                name="segundoNombre"
+                                value={persona.segundoNombre}
+                                onChange={handleChange}
+                            />
+                        </div>
+                        <div className="col-md-3">
+                            <label className="form-label">Primer Apellido</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                name="primerApellido"
+                                value={persona.primerApellido}
                                 onChange={handleChange}
                                 required
+                            />
+                        </div>
+                        <div className="col-md-3">
+                            <label className="form-label">Segundo Apellido</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                name="segundoApellido"
+                                value={persona.segundoApellido}
+                                onChange={handleChange}
                             />
                         </div>
                     </div>
@@ -85,22 +110,23 @@ const PersonaForm = ({ persona, handleChange, onAddHistorialMedico, onRemoveHist
                                 type="text"
                                 className="form-control"
                                 name="numeroDocumento"
-                                value={persona.numeroDocumento || ''}
+                                value={persona.numeroDocumento}
                                 onChange={handleChange}
                                 required
                             />
                         </div>
-                        <div className="col-md-6">
+                        <div className="col-md-4">
                             <label className="form-label">Fecha de Nacimiento</label>
                             <input
                                 type="date"
                                 className="form-control"
                                 name="fechaNacimiento"
-                                value={persona.fechaNacimiento || ''}
+                                value={persona.fechaNacimiento}
                                 onChange={handleChange}
                                 required
                             />
                         </div>
+                        
                     </div>
 
                     <div className="row mb-3">
@@ -124,14 +150,16 @@ const PersonaForm = ({ persona, handleChange, onAddHistorialMedico, onRemoveHist
                                 onChange={handleChange}
                                 required
                             >
-                                <option value="">Seleccionar...</option>
-                                <option value="administrativo">Administrativo</option>
-                                <option value="conductor">Conductor</option>
-                                <option value="obrero">Obrero</option>
-                                <option value="guia">Guía</option>
+                                <option value="">Seleccionar tipo...</option>
+                                {tiposPersona.map((tipo) => (
+                                    <option key={tipo.value} value={tipo.value}>
+                                        {tipo.label}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                     </div>
+                    
 
                     <div className="mb-3">
                         <label className="form-label">Dirección</label>
@@ -139,7 +167,7 @@ const PersonaForm = ({ persona, handleChange, onAddHistorialMedico, onRemoveHist
                             type="text"
                             className="form-control"
                             name="direccion"
-                            value={persona.direccion || ''}
+                            value={persona.direccion}
                             onChange={handleChange}
                             required
                         />
@@ -194,34 +222,35 @@ const PersonaForm = ({ persona, handleChange, onAddHistorialMedico, onRemoveHist
                         </div>
                     </div>
 
-                    {/* Historial Médico */}
+                    
+                     {/* Historial Médico Simplificado */}
                     <div className="mb-4">
                         <div className="d-flex justify-content-between align-items-center mb-3">
                             <h5 className="mb-0">Historial Médico</h5>
                             <button
                                 type="button"
-                                className="btn btn-success btn-sm"
-                                onClick={onAddHistorialMedico} // This will now correctly call the parent's function
+                                className="btn-secondary-persona btn-sm"
+                                onClick={onAddHistorialMedico}
                             >
                                 <i className="fas fa-plus me-1"></i>
-                                Agregar Condición Médica
+                                Agregar Registro Médico
                             </button>
                         </div>
 
-                        {historialMedico.length === 0 ? (
+                        {persona.historialMedico.length === 0 ? (
                             <div className="alert alert-info">
                                 <i className="fas fa-info-circle me-2"></i>
-                                No hay condiciones médicas registradas. Haga clic en "Agregar Condición Médica" para añadir una.
+                                No hay registros médicos. Haga clic en "Agregar Registro Médico" para añadir uno.
                             </div>
                         ) : (
-                            historialMedico.map((condicion, index) => (
+                            persona.historialMedico.map((registro, index) => (
                                 <div key={index} className="card mb-3">
                                     <div className="card-header d-flex justify-content-between align-items-center">
-                                        <h6 className="mb-0">Condición Médica #{index + 1}</h6>
+                                        <h6 className="mb-0">Registro Médico #{index + 1}</h6>
                                         <button
                                             type="button"
                                             className="btn btn-danger btn-sm"
-                                            onClick={() => onRemoveHistorialMedico(index)} // Correctly calls parent's function
+                                            onClick={() => onRemoveHistorialMedico(index)}
                                         >
                                             <i className="fas fa-trash"></i>
                                         </button>
@@ -229,101 +258,35 @@ const PersonaForm = ({ persona, handleChange, onAddHistorialMedico, onRemoveHist
                                     <div className="card-body">
                                         <div className="row">
                                             <div className="col-md-6 mb-3">
-                                                <label className="form-label">Diagnóstico</label>
-                                                <input
-                                                    type="text"
+                                                <label className="form-label">Tipo</label>
+                                                <select
                                                     className="form-control"
-                                                    value={condicion.diagnostico || ''}
-                                                    onChange={(e) => onUpdateHistorialMedico(index, 'diagnostico', e.target.value)}
-                                                    placeholder="Ej: Diabetes tipo 2"
-                                                />
-                                            </div>
-                                            <div className="col-md-6 mb-3">
-                                                <label className="form-label">Fecha de Diagnóstico</label>
-                                                <input
-                                                    type="date"
-                                                    className="form-control"
-                                                    value={condicion.fechaDiagnostico || ''}
-                                                    onChange={(e) => onUpdateHistorialMedico(index, 'fechaDiagnostico', e.target.value)}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="row">
-                                            <div className="col-md-6 mb-3">
-                                                <label className="form-label">Medicamento</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    value={condicion.medicamento || ''}
-                                                    onChange={(e) => onUpdateHistorialMedico(index, 'medicamento', e.target.value)}
-                                                    placeholder="Ej: Metformina"
-                                                />
-                                            </div>
-                                            <div className="col-md-6 mb-3">
-                                                <label className="form-label">Dosis</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    value={condicion.dosis || ''}
-                                                    onChange={(e) => onUpdateHistorialMedico(index, 'dosis', e.target.value)}
-                                                    placeholder="Ej: 500mg cada 12 horas"
-                                                />
+                                                    value={registro.tipo || ''}
+                                                    onChange={(e) => onUpdateHistorialMedico(index, 'tipo', e.target.value)}
+                                                >
+                                                    <option value="">Seleccionar tipo...</option>
+                                                    <option value="medicamento">Medicamento</option>
+                                                    <option value="discapacidad">Discapacidad</option>
+                                                    <option value="alergia">Alergia</option>
+                                                </select>
                                             </div>
                                         </div>
                                         <div className="mb-3">
-                                            <label className="form-label">Médico Tratante</label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                value={condicion.medicoTratante || ''}
-                                                onChange={(e) => onUpdateHistorialMedico(index, 'medicoTratante', e.target.value)}
-                                                placeholder="Ej: Dr. Juan Pérez"
-                                            />
-                                        </div>
-                                        <div className="mb-3">
-                                            <label className="form-label">Observaciones</label>
+                                            <label className="form-label">Descripción</label>
                                             <textarea
                                                 className="form-control"
                                                 rows="3"
-                                                value={condicion.observaciones || ''}
-                                                onChange={(e) => onUpdateHistorialMedico(index, 'observaciones', e.target.value)}
-                                                placeholder="Observaciones adicionales sobre esta condición médica..."
+                                                value={registro.descripcion || ''}
+                                                onChange={(e) => onUpdateHistorialMedico(index, 'descripcion', e.target.value)}
+                                                placeholder="Descripción detallada del registro médico..."
                                             />
-                                        </div>
-                                        <div className="row">
-                                            <div className="col-md-6">
-                                                <label className="form-label">Estado</label>
-                                                <select
-                                                    className="form-control"
-                                                    value={condicion.estado || ''}
-                                                    onChange={(e) => onUpdateHistorialMedico(index, 'estado', e.target.value)}
-                                                >
-                                                    <option value="">Seleccionar estado...</option>
-                                                    <option value="activo">Activo</option>
-                                                    <option value="controlado">Controlado</option>
-                                                    <option value="curado">Curado</option>
-                                                    <option value="inactivo">Inactivo</option>
-                                                </select>
-                                            </div>
-                                            <div className="col-md-6">
-                                                <label className="form-label">Prioridad</label>
-                                                <select
-                                                    className="form-control"
-                                                    value={condicion.prioridad || ''}
-                                                    onChange={(e) => onUpdateHistorialMedico(index, 'prioridad', e.target.value)}
-                                                >
-                                                    <option value="">Seleccionar prioridad...</option>
-                                                    <option value="alta">Alta</option>
-                                                    <option value="media">Media</option>
-                                                    <option value="baja">Baja</option>
-                                                </select>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             ))
                         )}
                     </div>
+
                 </div>
             </div>
         </div>

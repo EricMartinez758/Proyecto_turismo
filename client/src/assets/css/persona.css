@@ -1,0 +1,170 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Concert+One&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Savate:ital,wght@0,200..900;1,200..900&display=swap');
+
+
+/* General table styles */
+.persona-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+body{
+ font-family: "Nunito", sans-serif;
+}
+h5{
+  color: #194f24;
+}
+.persona-table th {
+  background-color: #195421c2;
+  color: #ffffff;
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.persona-table td {
+  padding: 0.75rem;
+  border-bottom: 1px lavender solid;
+}
+
+.persona-table tr:hover {
+  background-color: rgba(179, 162, 38, 0.401);
+}
+
+/* Badge styles */
+.badge-guia {
+  background-color: #0b4817b7;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+
+.badge-active {
+  background-color: #0b4817b7;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+.badge-inactive {
+  background-color: #FF9800;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+/* Modal styles */
+.persona-modal .modal-header {
+  background-color: #0e41156a;
+  color: #ffffff;
+  border-bottom: 1px solid #0b4817b7;
+}
+
+.persona-modal .modal-footer {
+  border-top: 1px solid #0b4817b7;
+}
+
+/* Button styles */
+.btn-primary-persona {
+  background-color: #0b4817b7;
+  border-color: #0b4817b7;
+  color: white;
+}
+
+.btn-primary-persona:hover {
+  background-color: #1e7930;
+  border-color: #194f24;
+}
+
+.btn-secondary-persona {
+  background-color: #6a219acb;
+  border-color: #3a0e416a;
+  color: white;
+  border-radius: 8px;
+}
+
+.btn-secondary-persona:hover {
+  background-color: #801563;
+  border-color: #2e0b48b7;
+}
+
+.btn-danger-persona {
+  background-color: #FF9800;
+  border-color: #FF9800;
+  color: white;
+}
+
+.btn-danger-persona:hover {
+  background-color: #e68a00;
+  border-color: #e68a00;
+}
+
+/* Form styles */
+.persona-form-card {
+  border: 1px solid #0e41156a;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.persona-form-card .card-header {
+  background-color: #0e41156a;
+  color: #ffffff;
+  padding: 0.75rem 1.25rem;
+}
+
+.form-label {
+  color: #0b4817b7;
+  font-weight: 500;
+}
+
+.form-control:focus {
+  border-color: #0b4817b7;
+  box-shadow: 0 0 0 0.25rem rgba(11, 72, 23, 0.25);
+}
+
+/* Medical history card */
+.medical-history-card {
+  border: 1px solid #0e41156a;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.medical-history-card .card-header {
+  background-color: rgba(11, 72, 23, 0.1);
+  padding: 0.5rem 1rem;
+}
+
+/* Alert styles */
+.alert-info-persona {
+  background-color: rgba(11, 72, 23, 0.1);
+  border-color: rgba(11, 72, 23, 0.2);
+  color: #0b4817b7;
+}
+
+/* Icon styles */
+.icon-persona {
+  color: #FF9800;
+  margin-right: 0.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .persona-table th, 
+  .persona-table td {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+  
+  .badge-guia,
+  .badge-administrativo,
+  .badge-obrero,
+  .badge-conductor,
+  .badge-active,
+  .badge-inactive {
+    font-size: 0.625rem;
+    padding: 0.15rem 0.3rem;
+  }
+}

@@ -1,11 +1,30 @@
 import React, { useState } from 'react';
 
-const PersonaForm = ({ persona, handleChange, onAddHistorialMedico, onRemoveHistorialMedico, onUpdateHistorialMedico, onSubmit }) => {
+
+
+
+const PersonaForm = ({ persona, handleChange, onAddHistorialMedico, onRemoveHistorialMedico, onUpdateHistorialMedico }) => {
+
+    const handleBankAccountChange = (e) => {
+        const value = e.target.value.replace(/\D/g, ''); // Solo números
+        const maxLength = 20;
+        if (value.length <= maxLength) {
+            handleChange({
+                target: {
+                    name: 'numeroCuentaBancaria',
+                    value: value
+                }
+            });
+        }
+    };
+
+    const historialMedico = Array.isArray(persona.historialMedico) ? persona.historialMedico : [];
+
     return (
         <div className="card">
             <div className="card-body">
                 <div>
-                    {/* Información Personal (se mantiene igual) */}
+                    {/* Información Personal  */}
                     <div className="row mb-3">
                         <div className="col-md-3">
                             <label className="form-label">Primer Nombre</label>
@@ -52,7 +71,7 @@ const PersonaForm = ({ persona, handleChange, onAddHistorialMedico, onRemoveHist
                     </div>
 
                     <div className="row mb-3">
-                        <div className="col-md-4">
+                        <div className="col-md-6">
                             <label className="form-label">Número de Documento</label>
                             <input
                                 type="text"
@@ -74,17 +93,7 @@ const PersonaForm = ({ persona, handleChange, onAddHistorialMedico, onRemoveHist
                                 required
                             />
                         </div>
-                        <div className="col-md-4">
-                            <label className="form-label">Nacionalidad</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                name="nacionalidad"
-                                value={persona.nacionalidad}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
+                        
                     </div>
 
                     <div className="row mb-3">
@@ -94,13 +103,12 @@ const PersonaForm = ({ persona, handleChange, onAddHistorialMedico, onRemoveHist
                                 type="tel"
                                 className="form-control"
                                 name="telefono"
-                                value={persona.telefono}
+                                value={persona.telefono || ''}
                                 onChange={handleChange}
                                 required
                             />
                         </div>
                     </div>
-
                     <div className="mb-3">
                         <label className="form-label">Dirección</label>
                         <input
@@ -113,7 +121,8 @@ const PersonaForm = ({ persona, handleChange, onAddHistorialMedico, onRemoveHist
                         />
                     </div>
 
-                    {/* Historial Médico Simplificado */}
+                    
+                     {/* Historial Médico Simplificado */}
                     <div className="mb-4">
                         <div className="d-flex justify-content-between align-items-center mb-3">
                             <h5 className="mb-0">Historial Médico</h5>
@@ -177,97 +186,9 @@ const PersonaForm = ({ persona, handleChange, onAddHistorialMedico, onRemoveHist
                         )}
                     </div>
 
-                    <div className="d-grid gap-2">
-                        <button
-                            type="button"
-                            className="btn btn-primary"
-                            onClick={onSubmit}
-                        >
-                            <i className="fas fa-save me-1"></i>
-                            Guardar Persona
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
     );
 };
-
-const App = () => {
-    const [persona, setPersona] = useState({
-        primerNombre: '',
-        segundoNombre: '',
-        primerApellido: '',
-        segundoApellido: '',
-        numeroDocumento: '',
-        fechaNacimiento: '',
-        nacionalidad: '',
-        telefono: '',
-        direccion: '',
-        historialMedico: []
-    });
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setPersona(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
-
-    // Función para agregar un nuevo registro médico
-    const handleAddHistorialMedico = () => {
-        const nuevoRegistro = {
-            tipo: '',
-            descripcion: ''
-        };
-
-        setPersona(prev => ({
-            ...prev,
-            historialMedico: [...prev.historialMedico, nuevoRegistro]
-        }));
-    };
-
-    // Función para eliminar un registro médico
-    const handleRemoveHistorialMedico = (index) => {
-        setPersona(prev => ({
-            ...prev,
-            historialMedico: prev.historialMedico.filter((_, i) => i !== index)
-        }));
-    };
-
-    // Función para actualizar un registro médico específico
-    const handleUpdateHistorialMedico = (index, campo, valor) => {
-        setPersona(prev => ({
-            ...prev,
-            historialMedico: prev.historialMedico.map((registro, i) =>
-                i === index
-                    ? { ...registro, [campo]: valor }
-                    : registro
-            )
-        }));
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log('Datos de la persona:', persona);
-        alert('Persona guardada exitosamente! Revisa la consola para ver los datos.');
-    };
-
-    return (
-        <div className="container mt-4">
-            <div>
-                <PersonaForm
-                    persona={persona}
-                    handleChange={handleChange}
-                    onAddHistorialMedico={handleAddHistorialMedico}
-                    onRemoveHistorialMedico={handleRemoveHistorialMedico}
-                    onUpdateHistorialMedico={handleUpdateHistorialMedico}
-                    onSubmit={handleSubmit}
-                />
-            </div>
-        </div>
-    );
-};
-
-export default App;
+export default PersonaForm;

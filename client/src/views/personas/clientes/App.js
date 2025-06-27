@@ -1,102 +1,69 @@
-import React, { useState } from 'react';
+import React, { useState, Component } from 'react';
 import { CContainer } from '@coreui/react';
 import PersonaTable from './PersonaTable';
 import PersonaModalCreate from './PersonaModalCreate';
 import PersonaModalEdit from './PersonaModalEdit';
 import PersonaModalToggleActive from './PersonaModalToggleActivate';
-import PersonaModalDetalles from './PersonaModalDetalles';
+import PersonaModalView from './PersonaModalView';
+import '../../../assets/css/persona.css'; 
 
-// Datos fríos iniciales
 const initialPersonas = [
-    {
-        _id: '1',
+    { _id: '1',
         primerNombre: 'Juan',
-        segundoNombre: 'Carlos',
+        segundoNombre: '',
         primerApellido: 'Pérez',
-        segundoApellido: 'González',
+        segundoApellido: '',
         numeroDocumento: '12345678',
         fechaNacimiento: '1990-05-15',
-        nacionalidad: 'Venezolano',
         telefono: '5551234',
         direccion: 'Calle 123, Ciudad',
         historialMedico: [
             {
-                tipo: 'alergia',
+                tipo: 'alergias',
                 descripcion: 'Alergia a los mariscos'
             }
         ],
         activo: true
     },
-    {
-        _id: '2',
+    { _id: '2',
         primerNombre: 'María',
-        segundoNombre: 'Isabel',
+        segundoNombre: 'Elena',
         primerApellido: 'Gómez',
         segundoApellido: 'López',
         numeroDocumento: '87654321',
-        fechaNacimiento: '1985-10-22',
-        nacionalidad: 'Colombiana',
-        telefono: '5555678',
-        direccion: 'Avenida Principal 456',
+        fechaNacimiento: '1985-08-20',
+        telefono: '5556789',
+        direccion: 'Avenida 456, Ciudad',
         historialMedico: [
             {
-                tipo: 'medicamento',
-                descripcion: 'Toma medicamento para la presión'
+                tipo: 'enfermedad crónica',
+                descripcion: 'Diabetes tipo 2'
             }
         ],
         activo: true
     },
-    {
-        _id: '3',
+    { _id: '3',
         primerNombre: 'Carlos',
-        segundoNombre: 'Alberto',
-        primerApellido: 'Rodríguez',
-        segundoApellido: 'Martínez',
-        numeroDocumento: '56781234',
-        fechaNacimiento: '1978-03-30',
-        nacionalidad: 'Ecuatoriano',
-        telefono: '5559012',
-        direccion: 'Carrera 7 # 45-89',
-        historialMedico: [
-            {
-                tipo: 'discapacidad',
-                descripcion: 'Discapacidad auditiva parcial'
-            }
-        ],
-        activo: false
-    },
-    {
-        _id: '4',
-        primerNombre: 'Ana',
-        segundoNombre: 'María',
-        primerApellido: 'Fernández',
+        segundoNombre: 'Andrés',
+        primerApellido: 'Martínez',
         segundoApellido: '',
-        numeroDocumento: '34567890',
-        fechaNacimiento: '1992-07-18',
-        nacionalidad: 'Peruana',
-        telefono: '5553456',
-        direccion: 'Calle 56 # 12-34',
-        historialMedico: [
-            {
-                tipo: 'medicamento',
-                descripcion: 'Insulina diaria'
-            },
-            {
-                tipo: 'alergia',
-                descripcion: 'Alergia a la penicilina'
-            }
-        ],
+        numeroDocumento: '11223344',
+        fechaNacimiento: '1992-12-01',
+        telefono: '5559876',
+        direccion: 'Calle 789, Ciudad',
+        historialMedico: [],
         activo: true
     }
 ];
+
 
 const App = () => {
     const [personas, setPersonas] = useState(initialPersonas);
     const [selectedPersona, setSelectedPersona] = useState(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [showViewModal, setShowViewModal] = useState(false);
     const [showToggleActiveModal, setShowToggleActiveModal] = useState(false);
-    const [showDetailsModal, setShowDetailsModal] = useState(false);
 
     const handleCreateSuccess = (newPersona) => {
         setPersonas([...personas, newPersona]);
@@ -104,7 +71,7 @@ const App = () => {
     };
 
     const handleEditSuccess = (updatedPersona) => {
-        setPersonas(personas.map(p =>
+        setPersonas(personas.map(p => 
             p._id === updatedPersona._id ? updatedPersona : p
         ));
         setShowEditModal(false);
@@ -125,51 +92,51 @@ const App = () => {
             >
                 Crear Persona
             </button>
-
+            
             <PersonaTable
                 personas={personas}
                 onEdit={(persona) => {
                     setSelectedPersona(persona);
                     setShowEditModal(true);
                 }}
+                onView={(persona) => {
+                    setSelectedPersona(persona);
+                    setShowViewModal(true);
+                }}
                 onToggleActive={(persona) => {
                     setSelectedPersona(persona);
                     setShowToggleActiveModal(true);
                 }}
-                onShowDetails={(persona) => {
-                    setSelectedPersona(persona);
-                    setShowDetailsModal(true);
-                }}
             />
-
-            {/* Modals */}
+            
             <PersonaModalCreate
                 show={showCreateModal}
                 onHide={() => setShowCreateModal(false)}
                 onSuccess={handleCreateSuccess}
             />
-
+            
             <PersonaModalEdit
                 show={showEditModal}
                 onHide={() => setShowEditModal(false)}
                 onSuccess={handleEditSuccess}
                 persona={selectedPersona}
             />
-
+            
+            <PersonaModalView
+                show={showViewModal}
+                onHide={() => setShowViewModal(false)}
+                persona={selectedPersona}
+            />
+            
             <PersonaModalToggleActive
                 show={showToggleActiveModal}
                 onHide={() => setShowToggleActiveModal(false)}
                 onSuccess={() => handleToggleActiveSuccess(selectedPersona?._id)}
                 persona={selectedPersona}
             />
-
-            <PersonaModalDetalles
-                show={showDetailsModal}
-                handleClose={() => setShowDetailsModal(false)}
-                persona={selectedPersona}
-            />
         </CContainer>
     );
 };
+
 
 export default App;
