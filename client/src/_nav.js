@@ -10,7 +10,7 @@ import {
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
-
+import '../src/assets/css/AppSidebar.css'
 const _nav = [
   {
     component: CNavItem,
@@ -18,10 +18,11 @@ const _nav = [
     to: '/dashboard',
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
   },
-  {
-    component: CNavTitle,
-    name: 'Personas',
-  },
+ {
+  component: CNavTitle,
+  name: 'Personas',
+ 
+},
   {
     component: CNavItem,
     name: 'Personal',
@@ -37,6 +38,7 @@ const _nav = [
   {
     component: CNavTitle,
     name: 'Experiencias',
+    
   },
    {
     component: CNavItem,

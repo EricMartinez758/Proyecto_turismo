@@ -12,6 +12,7 @@ import {
 
 import { AppSidebarNav } from './AppSidebarNav'
 import navigation from '../_nav'
+import logo from '../assets/logo.png'
 import '../assets/css/AppSidebar.css'
 
 const AppSidebar = () => {
@@ -31,7 +32,7 @@ const AppSidebar = () => {
     >
       <CSidebarHeader className="sidebar-header">
         <CSidebarBrand className="sidebar-brand" to="/">
-          <CImage align='center' src='src/assets/logo.png' height={150} />
+          <CImage align='center' src={logo} height={150} />
         </CSidebarBrand>
         <CCloseButton
           className="d-lg-none"

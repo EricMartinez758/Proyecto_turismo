@@ -41,6 +41,7 @@
   background-color: var(--header-bg) !important;
   border-bottom: 1px solid var(--border-color) !important;
   padding: 1rem;
+  color: #ffffff;
 }
 
 /* Logo */
@@ -108,4 +109,15 @@
 /* Botón de cerrar en móviles */
 .custom-sidebar .btn-close {
   filter: opacity(0.7);
+}
+body{
+  color: var(--text-primary);
+}
+.nav-title {
+  color: #ffffff !important;
+  font-weight: bold;
+  font-family: Nunito, sans-serif;
+  background-color: rgba(26, 3, 32, 0.3);
+ 
+
 }
