@@ -3,7 +3,6 @@ import { format } from 'date-fns';
 
 const EditTasa = ({ tasa, monedas, onUpdate, onCancel }) => {
   const [formData, setFormData] = useState({
-    moneda: '',
     valor: '',
     fecha: format(new Date(), 'yyyy-MM-dd')
   });
@@ -11,7 +10,6 @@ const EditTasa = ({ tasa, monedas, onUpdate, onCancel }) => {
   useEffect(() => {
     if (tasa) {
       setFormData({
-        moneda: tasa.moneda,
         valor: tasa.valor,
         fecha: format(new Date(tasa.fecha), 'yyyy-MM-dd')
       });
@@ -27,27 +25,23 @@ const EditTasa = ({ tasa, monedas, onUpdate, onCancel }) => {
     e.preventDefault();
     onUpdate({
       ...tasa,
-      ...formData,
-      valor: parseFloat(formData.valor)
+      valor: parseFloat(formData.valor),
+      fecha: formData.fecha
     });
   };
+
+  const monedaInfo = monedas.find(m => m.codigo === tasa?.moneda) || {};
 
   return (
     <div className="edit-tasa">
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label>Moneda:</label>
-          <select
-            name="moneda"
-            value={formData.moneda}
-            onChange={handleChange}
-            className="form-control"
-            disabled
-          >
-            <option value={formData.moneda}>
-              {monedas.find(m => m.codigo === formData.moneda)?.nombre} ({formData.moneda})
-            </option>
-          </select>
+          <div className="form-control-plaintext">
+            <h5>
+              <strong>{monedaInfo.nombre}</strong> ({tasa?.moneda} {monedaInfo.simbolo && `- ${monedaInfo.simbolo}`})
+            </h5>
+          </div>
         </div>
         
         <div className="form-group">

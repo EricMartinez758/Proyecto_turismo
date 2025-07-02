@@ -14,23 +14,38 @@ const TasasManager = () => {
   const [showView, setShowView] = useState(false);
 
   const [monedas] = useState([
-    { codigo: 'EUR', nombre: 'Euro' },
-    { codigo: 'COP', nombre: 'Peso Colombiano' },
-    { codigo: 'BRL', nombre: 'Real Brasileño' },
-    { codigo: 'MXN', nombre: 'Peso Mexicano' }
+    { codigo: 'EUR', nombre: 'Euro', simbolo: '€' },
+    { codigo: 'COP', nombre: 'Peso Colombiano', simbolo: '$' },
+    { codigo: 'BRL', nombre: 'Real Brasileño', simbolo: 'R$' },
+    { codigo: 'MXN', nombre: 'Peso Mexicano', simbolo: '$' },
+    { codigo: 'PEN', nombre: 'Sol Peruano', simbolo: 'S/' },
+    { codigo: 'CLP', nombre: 'Peso Chileno', simbolo: '$' },
+    { codigo: 'ARS', nombre: 'Peso Argentino', simbolo: '$' },
+    { codigo: 'GBP', nombre: 'Libra Esterlina', simbolo: '£' },
+    { codigo: 'JPY', nombre: 'Yen Japonés', simbolo: '¥' },
+    { codigo: 'CNY', nombre: 'Yuan Chino', simbolo: '¥' },
+    { codigo: 'CHF', nombre: 'Franco Suizo', simbolo: 'CHF' },
+    { codigo: 'CAD', nombre: 'Dólar Canadiense', simbolo: 'CA$' },
+    { codigo: 'AUD', nombre: 'Dólar Australiano', simbolo: 'A$' },
+    { codigo: 'NZD', nombre: 'Dólar Neozelandés', simbolo: 'NZ$' },
+    { codigo: 'KRW', nombre: 'Won Surcoreano', simbolo: '₩' },
+    { codigo: 'SGD', nombre: 'Dólar de Singapur', simbolo: 'S$' },
+    { codigo: 'HKD', nombre: 'Dólar de Hong Kong', simbolo: 'HK$' },
+    { codigo: 'SEK', nombre: 'Corona Sueca', simbolo: 'kr' },
+    { codigo: 'NOK', nombre: 'Corona Noruega', simbolo: 'kr' },
+    { codigo: 'DKK', nombre: 'Corona Danesa', simbolo: 'kr' },
+    { codigo: 'ZAR', nombre: 'Rand Sudafricano', simbolo: 'R' },
+    { codigo: 'INR', nombre: 'Rupia India', simbolo: '₹' },
+    { codigo: 'RUB', nombre: 'Rublo Ruso', simbolo: '₽' },
+    { codigo: 'TRY', nombre: 'Lira Turca', simbolo: '₺' }
   ]);
 
   const handleCreateTasa = (newTasa) => {
-    const existe = tasas.find(t => t.moneda === newTasa.moneda);
-    
-    if (existe) {
-      alert(`Ya existe una tasa para ${newTasa.moneda}. Actualícela en lugar de crear una nueva.`);
-      return;
-    }
-
     setTasas([...tasas, { 
       ...newTasa, 
       id: Date.now(),
+      nombreMoneda: monedas.find(m => m.codigo === newTasa.moneda)?.nombre,
+      simbolo: monedas.find(m => m.codigo === newTasa.moneda)?.simbolo,
       historial: [{
         valor: newTasa.valor,
         fecha: newTasa.fecha,
@@ -68,6 +83,7 @@ const TasasManager = () => {
       
       <TasaList
         tasas={tasas}
+        monedas={monedas}
         onView={(tasa) => {
           setSelectedTasa(tasa);
           setShowView(true);
@@ -84,6 +100,7 @@ const TasasManager = () => {
         <ModalBody>
           <CreateTasa
             monedas={monedas}
+            tasasExistentes={tasas}
             onCreate={handleCreateTasa}
             onCancel={() => setShowCreate(false)}
           />
