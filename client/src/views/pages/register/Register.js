@@ -10,10 +10,12 @@ import {
   CInputGroup,
   CInputGroupText,
   CRow,
+  CAlert, 
+  CSpinner, 
 } from '@coreui/react';
-import CIcon from '@coreui/icons-react';
+import { CIcon } from '@coreui/icons-react';
 import { cilLockLocked, cilUser } from '@coreui/icons';
-import { useAuth } from '../../../../../src/contexts/authcontexts.js'; 
+import { useAuth } from '../../../../../src/contexts/authcontexts.js';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/css/Login.css'; 
 
@@ -26,7 +28,7 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isNavigatingToLogin, setIsNavigatingToLogin] = useState(false);
 
-  const { login } = useAuth();
+  const { login: authLogin } = useAuth(); 
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
@@ -45,7 +47,7 @@ const Register = () => {
     }
 
     setIsLoading(true);
-    
+
     try {
       const response = await fetch('/api/register', {
         method: 'POST',
@@ -58,9 +60,13 @@ const Register = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setSuccessMessage(data.message || 'Registro exitoso.');
-        login(data.user);
-        navigate('/dashboard');
+        setSuccessMessage(data.message || 'Registro exitoso. Redirigiendo...');
+      
+        authLogin(data.user); 
+        
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 1500);
       } else {
         setErrorMessage(data.message || 'Error en el registro.');
       }
@@ -74,7 +80,7 @@ const Register = () => {
 
   const handleNavigateToLogin = () => {
     setIsNavigatingToLogin(true);
-    // Animación de 1.5 segundos antes de redirigir
+   
     setTimeout(() => {
       navigate('/login');
     }, 1500);
@@ -86,9 +92,7 @@ const Register = () => {
       {isNavigatingToLogin && (
         <div className="navigation-overlay">
           <div className="navigation-spinner">
-            <div className="spinner-border text-light" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
+            <CSpinner color="light" size="lg" /> {/* Usar CSpinner */}
             <p className="mt-3">Redirigiendo a Inicio de Sesión...</p>
           </div>
         </div>
@@ -97,24 +101,21 @@ const Register = () => {
       {/* Overlay de registro */}
       {isLoading && (
         <div className="register-loading-overlay">
-          <div className="spinner-border" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
+          <CSpinner color="primary" size="lg" /> {/* Usar CSpinner */}
           <p className="mt-3">Procesando registro...</p>
         </div>
       )}
 
       <CRow className="justify-content-center g-0">
-        <CCol  md={9} lg={8} xl={7}>
+        <CCol md={9} lg={8} xl={7}>
           <CRow className="g-0">
             <CCol md={6}>
               <CCard className="custom-login-card rounded-0 end-0">
                 <CCardBody className="custom-login-form">
                   <h1 className="custom-login-title">Registro</h1>
                   <p className="custom-login-subtitle">Crea tu cuenta</p>
-                  
+
                   <CForm onSubmit={handleRegister}>
-                    {/* Campos del formulario... (mantener igual que antes) */}
                     <CInputGroup className="custom-input-group mb-4">
                       <CInputGroupText className="custom-input-icon">
                         <CIcon icon={cilUser} />
@@ -161,26 +162,26 @@ const Register = () => {
                     </CInputGroup>
 
                     {errorMessage && (
-                      <div className="alert alert-danger" role="alert">
+                      <CAlert color="danger" className="mb-4"> {/* Usar CAlert */}
                         {errorMessage}
-                      </div>
+                      </CAlert>
                     )}
                     {successMessage && (
-                      <div className="alert alert-success" role="alert">
+                      <CAlert color="success" className="mb-4"> {/* Usar CAlert */}
                         {successMessage}
-                      </div>
+                      </CAlert>
                     )}
 
                     <div className="d-grid">
-                      <CButton 
-                        color="success" 
-                        type="submit" 
+                      <CButton
+                        color="success"
+                        type="submit"
                         className="custom-login-btn"
                         disabled={isLoading}
                       >
                         {isLoading ? (
                           <>
-                            <span className="custom-spinner spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <CSpinner size="sm" className="custom-spinner" />
                             Creando cuenta...
                           </>
                         ) : (
@@ -192,7 +193,7 @@ const Register = () => {
                 </CCardBody>
               </CCard>
             </CCol>
-            
+
             <CCol md={6}>
               <CCard className="custom-primary-card h-100 rounded-start-0">
                 <CCardBody className="d-flex flex-column justify-content-center align-items-center text-center p-5">
@@ -200,14 +201,14 @@ const Register = () => {
                   <p className="custom-register-text">
                     ¿Ya tienes una cuenta? Inicia sesión para acceder a todas las funcionalidades de nuestra plataforma.
                   </p>
-                  <CButton 
-                    className="custom-register-btn" 
+                  <CButton
+                    className="custom-register-btn"
                     onClick={handleNavigateToLogin}
                     disabled={isNavigatingToLogin}
                   >
                     {isNavigatingToLogin ? (
                       <>
-                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <CSpinner size="sm" /> {/* Usar CSpinner */}
                         Redirigiendo...
                       </>
                     ) : (
