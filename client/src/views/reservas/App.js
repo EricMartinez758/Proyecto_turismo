@@ -24,7 +24,7 @@ function App() {
   ]);
 
   const activityPrices = {
-    tour: { USD: 50, VES: 50 * 36.5 },
+    tour: { USD: 60, VES: 50 * 36.5 },
     'plan vacional': { USD: 200, VES: 200 * 36.5 },
     maraton: { USD: 30, VES: 30 * 36.5 }
   };
