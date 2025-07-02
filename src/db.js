@@ -1,7 +1,7 @@
 import pg from 'pg';
 
 export const pool = new pg.Pool({
-  user: 'postgres',
+  user: 'angela',
   host: 'localhost',
   password: 'eric758999',
   database: 'Sisbdtur',

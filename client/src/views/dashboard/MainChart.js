@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react'
-
 import { CChartLine } from '@coreui/react-chartjs'
 import { getStyle } from '@coreui/utils'
 
@@ -26,7 +25,10 @@ const MainChart = () => {
     })
   }, [chartRef])
 
-  const random = () => Math.round(Math.random() * 100)
+  // Datos de ejemplo para reservas
+  const bookingData = [45, 68, 72, 89, 124, 156, 98]
+  const revenueData = [1200, 1850, 2100, 2450, 3200, 3950, 2800]
+  const cancellationsData = [2, 3, 1, 4, 6, 3, 2]
 
   return (
     <>
@@ -34,49 +36,34 @@ const MainChart = () => {
         ref={chartRef}
         style={{ height: '300px', marginTop: '40px' }}
         data={{
-          labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+          labels: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'],
           datasets: [
             {
-              label: 'My First dataset',
+              label: 'Reservas',
               backgroundColor: `rgba(${getStyle('--cui-info-rgb')}, .1)`,
               borderColor: getStyle('--cui-info'),
               pointHoverBackgroundColor: getStyle('--cui-info'),
               borderWidth: 2,
-              data: [
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-              ],
+              data: bookingData,
               fill: true,
             },
             {
-              label: 'My Second dataset',
+              label: 'Ingresos (USD)',
               backgroundColor: 'transparent',
               borderColor: getStyle('--cui-success'),
               pointHoverBackgroundColor: getStyle('--cui-success'),
               borderWidth: 2,
-              data: [
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-              ],
+              data: revenueData,
+              yAxisID: 'y1',
             },
             {
-              label: 'My Third dataset',
+              label: 'Cancelaciones',
               backgroundColor: 'transparent',
               borderColor: getStyle('--cui-danger'),
               pointHoverBackgroundColor: getStyle('--cui-danger'),
               borderWidth: 1,
               borderDash: [8, 5],
-              data: [65, 65, 65, 65, 65, 65, 65],
+              data: cancellationsData,
             },
           ],
         }}
@@ -84,8 +71,25 @@ const MainChart = () => {
           maintainAspectRatio: false,
           plugins: {
             legend: {
-              display: false,
+              display: true,
+              position: 'top',
             },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  let label = context.dataset.label || '';
+                  if (label) {
+                    label += ': ';
+                  }
+                  if (context.datasetIndex === 1) {
+                    label += '$' + context.raw.toLocaleString();
+                  } else {
+                    label += context.raw;
+                  }
+                  return label;
+                }
+              }
+            }
           },
           scales: {
             x: {
@@ -105,12 +109,39 @@ const MainChart = () => {
               grid: {
                 color: getStyle('--cui-border-color-translucent'),
               },
-              max: 250,
+              max: 180,
               ticks: {
                 color: getStyle('--cui-body-color'),
                 maxTicksLimit: 5,
-                stepSize: Math.ceil(250 / 5),
+                stepSize: Math.ceil(180 / 5),
               },
+              title: {
+                display: true,
+                text: 'Reservas / Cancelaciones'
+              }
+            },
+            y1: {
+              position: 'right',
+              beginAtZero: true,
+              border: {
+                color: getStyle('--cui-border-color-translucent'),
+              },
+              grid: {
+                drawOnChartArea: false,
+              },
+              max: 5000,
+              ticks: {
+                color: getStyle('--cui-body-color'),
+                maxTicksLimit: 5,
+                stepSize: Math.ceil(5000 / 5),
+                callback: function(value) {
+                  return '$' + value.toLocaleString();
+                }
+              },
+              title: {
+                display: true,
+                text: 'Ingresos (USD)'
+              }
             },
           },
           elements: {
@@ -118,9 +149,9 @@ const MainChart = () => {
               tension: 0.4,
             },
             point: {
-              radius: 0,
+              radius: 3,
               hitRadius: 10,
-              hoverRadius: 4,
+              hoverRadius: 6,
               hoverBorderWidth: 3,
             },
           },
