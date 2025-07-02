@@ -30,21 +30,31 @@ const ViewTasa = ({ tasa, onBack }) => {
           <div className="row mb-4">
             <div className="col-md-4">
               <strong>Moneda:</strong>
-              <Badge color="primary" className="ml-2">
-                {tasa.moneda}
-              </Badge>
+              <div className="mt-2">
+                <h5>
+                  <Badge color="primary">
+                    {tasa.nombreMoneda} ({tasa.moneda} {tasa.simbolo && `- ${tasa.simbolo}`})
+                  </Badge>
+                </h5>
+              </div>
             </div>
             <div className="col-md-4">
               <strong>Valor actual:</strong>
-              <Badge color="success" className="ml-2">
-                1 USD = {tasa.valor} {tasa.moneda}
-              </Badge>
+              <div className="mt-2">
+                <h4>
+                  <Badge color="success">
+                    1 USD = {tasa.valor} {tasa.moneda}
+                  </Badge>
+                </h4>
+              </div>
             </div>
             <div className="col-md-4">
               <strong>Vigente desde:</strong>
-              <Badge color="info" className="ml-2">
-                {formatDateTime(tasa.fecha)}
-              </Badge>
+              <div className="mt-2">
+                <Badge color="info">
+                  {formatDateTime(tasa.fecha)}
+                </Badge>
+              </div>
             </div>
           </div>
           

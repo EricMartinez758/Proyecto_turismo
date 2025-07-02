@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
 
-const CreateTasa = ({ monedas, onCreate, onCancel }) => {
+const CreateTasa = ({ monedas, tasasExistentes, onCreate, onCancel }) => {
   const [formData, setFormData] = useState({
-    moneda: monedas[0]?.codigo || '',
+    moneda: '',
     valor: '',
     fecha: format(new Date(), 'yyyy-MM-dd')
   });
@@ -25,6 +25,11 @@ const CreateTasa = ({ monedas, onCreate, onCancel }) => {
     });
   };
 
+  // Filtrar monedas disponibles (no existentes)
+  const monedasDisponibles = monedas.filter(moneda => 
+    !tasasExistentes.some(tasa => tasa.moneda === moneda.codigo)
+  );
+
   return (
     <div className="create-tasa">
       <form onSubmit={handleSubmit}>
@@ -37,12 +42,23 @@ const CreateTasa = ({ monedas, onCreate, onCancel }) => {
             className="form-control"
             required
           >
-            {monedas.map(moneda => (
-              <option key={moneda.codigo} value={moneda.codigo}>
-                {moneda.nombre} ({moneda.codigo})
-              </option>
-            ))}
+            <option value="">Seleccione una moneda</option>
+            {monedas.map(moneda => {
+              const existe = tasasExistentes.some(t => t.moneda === moneda.codigo);
+              return (
+                <option 
+                  key={moneda.codigo} 
+                  value={moneda.codigo}
+                  disabled={existe}
+                >
+                  {moneda.nombre} ({moneda.codigo}) {existe && "(Existente)"}
+                </option>
+              );
+            })}
           </select>
+          <small className="form-text text-muted">
+            Solo se muestran monedas que no tienen tasa registrada
+          </small>
         </div>
         
         <div className="form-group">
