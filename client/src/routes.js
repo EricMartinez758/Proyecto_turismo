@@ -60,6 +60,7 @@ const Clientes = React.lazy(() => import('./views/personas/clientes/App'));
 const Reservas = React.lazy(() => import('./views/reservas/App'));
 const Eventos = React.lazy(() => import('./views/eventos/EventManager'));
 const Tasas = React.lazy(() => import('./views/tasas/TasasManage'));
+const TrabajadoresAdmin = React.lazy(() => import('./views/admin/TrabajadoresAdmin'));
 
 const routes = [
   
@@ -116,6 +117,8 @@ const routes = [
   { path: '/notifications/modals', name: 'Modals', element: Modals },
   { path: '/notifications/toasts', name: 'Toasts', element: Toasts },
   { path: '/widgets', name: 'Widgets', element: Widgets },
+
+  { path: '/admin/trabajadores', name: 'Gestión de Trabajadores', element: TrabajadoresAdmin },
 ];
 
 export default routes;

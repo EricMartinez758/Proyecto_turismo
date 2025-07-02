@@ -1,24 +1,25 @@
-// src/app.js (del backend)
-import express from 'express'
-import morgan from 'morgan'
-import authRoutes from './routes/auth.routes.js';
-import cookieParser from 'cookie-parser';
-import router from './routes/task.routes.js';
+// src/app.js
+import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import morgan from 'morgan';
+
+import authRoutes from './routes/auth.routes.js';
+// ... otras rutas que puedas tener ...
+import adminRoutes from './routes/admin.routes.js'; // Importar las nuevas rutas de administración
 
 const app = express();
 
 app.use(morgan('dev'));
+app.use(cors({
+    origin: 'http://localhost:3000', // Asegúrate de que tu frontend corre aquí
+    credentials: true, // Esto es crucial para enviar y recibir cookies (como tu token)
+}));
 app.use(express.json());
 app.use(cookieParser());
 
-// *** ¡CAMBIA ESTA LÍNEA! ***
-app.use(cors({
- origin: 'http://localhost:3000', 
- credentials: true, 
-}));
+app.use('/api', authRoutes);
+app.use('/api', adminRoutes); // Usar las rutas de administración bajo el prefijo /api
 
-app.use("/api",authRoutes)
-app.use("/api", router);
 
 export default app;

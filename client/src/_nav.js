@@ -7,11 +7,14 @@ import {
   cilCart,
   cibEventStore,
   cilSync,
-  cilCarAlt
+  cilCarAlt, // Mantengo este aunque no se use en el nuevo item, por si lo usas en otro lado
+  cilBriefcase, // Icono para "Trabajadores"
+  cilShieldAlt // Icono para "Administración" (opcional, si quieres un icono para el título)
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
 import '../src/assets/css/AppSidebar.css'
+
 const _nav = [
   {
     component: CNavItem,
@@ -19,11 +22,10 @@ const _nav = [
     to: '/dashboard',
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
   },
- {
-  component: CNavTitle,
-  name: 'Personas',
- 
-},
+  {
+    component: CNavTitle,
+    name: 'Personas',
+  },
   {
     component: CNavItem,
     name: 'Personal',
@@ -39,9 +41,8 @@ const _nav = [
   {
     component: CNavTitle,
     name: 'Experiencias',
-    
   },
-   {
+  {
     component: CNavItem,
     name: 'Eventos',
     to: '/eventos/',
@@ -53,13 +54,26 @@ const _nav = [
     to: '/reservas/',
     icon: <CIcon icon={cilCart} customClassName="nav-icon" />,
   },
-   {
+  {
     component: CNavItem,
     name: 'Tasas',
     to: '/tasas/',
     icon: <CIcon icon={cilSync} customClassName="nav-icon" />,
-  }
- 
+  },
+  // *** NUEVA SECCIÓN: ADMINISTRACIÓN (PARA SUPERUSUARIOS) ***
+  {
+    component: CNavTitle,
+    name: 'Administración',
+    role: 'superusuario', // Indicador para la visibilidad condicional
+    icon: <CIcon icon={cilShieldAlt} customClassName="nav-icon" />, // Icono opcional para el título
+  },
+  {
+    component: CNavItem,
+    name: 'Trabajadores',
+    to: '/admin/trabajadores', // Nueva ruta para la gestión de trabajadores
+    icon: <CIcon icon={cilBriefcase} customClassName="nav-icon" />, // Icono de maletín
+    role: 'superusuario', // Indicador para la visibilidad condicional
+  },
 ]
 
 export default _nav
