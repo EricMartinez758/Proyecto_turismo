@@ -6,6 +6,7 @@ import {
   cibReadTheDocs,
   cilCart,
   cibEventStore,
+  cilSync,
   cilCarAlt
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
@@ -51,9 +52,14 @@ const _nav = [
     name: 'Reservas',
     to: '/reservas/',
     icon: <CIcon icon={cilCart} customClassName="nav-icon" />,
+  },
+   {
+    component: CNavItem,
+    name: 'Tasas',
+    to: '/tasas/',
+    icon: <CIcon icon={cilSync} customClassName="nav-icon" />,
   }
  
-
 ]
 
 export default _nav
