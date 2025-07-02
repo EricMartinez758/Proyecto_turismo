@@ -16,7 +16,7 @@ import {
   CAlert,
   CSpinner,
 } from '@coreui/react';
-import CIcon from '@coreui/icons-react';
+import { CIcon } from '@coreui/icons-react';
 import { cilLockLocked, cilUser } from '@coreui/icons';
 import { useAuth } from '../../../../../src/contexts/authcontexts.js';
 import '../../../assets/css/Login.css';
@@ -31,9 +31,9 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [registerLoading, setRegisterLoading] = useState(false);
-  
+
   const navigate = useNavigate();
-  const { login: authLogin } = useAuth();
+  const { login: authLogin } = useAuth(); 
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,16 +46,17 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsSubmitted(true);
-    
+
     if (!credentials.correo || !credentials.contrasena) {
+      setError('Por favor, ingresa tu correo y contraseña.');
       return;
     }
-    
+
     setError('');
     setLoading(true);
 
     try {
-      const response = await fetch('/api/login', { 
+      const response = await fetch('/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,12 +69,10 @@ const Login = () => {
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
-        authLogin({
-          user: data.user,
-          token: data.token
-        });
+        
+        authLogin(data.user); 
         navigate('/dashboard', { replace: true });
       } else {
         setError(data.message || 'Credenciales incorrectas. Por favor, inténtalo de nuevo.');
@@ -90,7 +89,7 @@ const Login = () => {
     setRegisterLoading(true);
     setTimeout(() => {
       navigate('/register');
-    }, 1500); // Tiempo de la animación
+    }, 1500); 
   };
 
   return (
@@ -110,8 +109,8 @@ const Login = () => {
       </AnimatePresence>
 
       <CContainer>
-        <CRow className="justify-content-end"> {/* Cambiado a justify-content-end */}
-          <CCol md={9} lg={8} xl={7}> 
+        <CRow className="justify-content-end">
+          <CCol md={9} lg={8} xl={7}>
             <CCardGroup>
               <CCard className="custom-login-card">
                 <CCardBody className="custom-login-form">
@@ -143,7 +142,7 @@ const Login = () => {
                         invalid={isSubmitted && !credentials.correo}
                       />
                     </CInputGroup>
-                    
+
                     <CInputGroup className="custom-input-group">
                       <CInputGroupText className="custom-input-icon">
                         <CIcon icon={cilLockLocked} />
@@ -160,13 +159,13 @@ const Login = () => {
                         invalid={isSubmitted && !credentials.contrasena}
                       />
                     </CInputGroup>
-                    
+
                     <CRow className="mt-4">
                       <CCol xs={6}>
-                        <CButton 
-                          color="primary" 
-                          className="custom-login-btn" 
-                          type="submit" 
+                        <CButton
+                          color="primary"
+                          className="custom-login-btn"
+                          type="submit"
                           disabled={loading}
                         >
                           {loading ? (
@@ -190,7 +189,7 @@ const Login = () => {
                   </CForm>
                 </CCardBody>
               </CCard>
-              
+
               <CCard className="custom-primary-card">
                 <CCardBody className="text-center py-5">
                   <div>
@@ -198,10 +197,10 @@ const Login = () => {
                     <p className="custom-register-text">
                       Regístrate para crear una cuenta y comenzar a utilizar todos nuestros servicios.
                     </p>
-                    <CButton 
-                      color="light" 
-                      className="custom-register-btn" 
-                      active 
+                    <CButton
+                      color="light"
+                      className="custom-register-btn"
+                      active
                       tabIndex={-1}
                       onClick={handleRegisterRedirect}
                       disabled={registerLoading}
