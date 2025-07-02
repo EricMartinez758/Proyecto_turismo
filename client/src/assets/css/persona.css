@@ -12,6 +12,7 @@ body{
  font-family: "Nunito", sans-serif;
 
 }
+
 h5{
   color: #194f24;
 }
@@ -28,7 +29,7 @@ h5{
 }
 
 .persona-table tr:hover {
-  background-color: rgba(179, 162, 38, 0.401);
+  background-color: rgba(46, 207, 13, 0.841);
 }
 
 /* Badge styles */
@@ -59,7 +60,7 @@ h5{
 
 /* Modal styles */
 .persona-modal .modal-header {
-  background-color: #0e41156a;
+  background-color: #0e4115c2;
   color: #ffffff;
   border-bottom: 1px solid #0b4817b7;
 }
@@ -70,9 +71,10 @@ h5{
 
 /* Button styles */
 .btn-primary-persona {
-  background-color: #0b4817b7;
+  background-color: #094a16d3;
   border-color: #0b4817b7;
   color: white;
+  
 }
 
 .btn-primary-persona:hover {
@@ -105,7 +107,7 @@ h5{
 
 /* Form styles */
 .persona-form-card {
-  border: 1px solid #0e41156a;
+ 
   border-radius: 0.5rem;
   margin-bottom: 1rem;
 }
