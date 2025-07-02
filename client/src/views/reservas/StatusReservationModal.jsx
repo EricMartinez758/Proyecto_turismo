@@ -2,40 +2,45 @@ import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
 
 const StatusReservationModal = ({ show, onHide, onConfirm, reservation }) => {
-  // Return null if no reservation is provided
   if (!reservation) return null;
 
   const handleConfirm = () => {
     onConfirm(reservation.id);
   };
 
-  const isActive = reservation?.active ?? false;
-  const reservationCode = reservation?.reservationCode ?? '';
-  const clientName = reservation?.client 
-    ? `${reservation.client.firstName || ''} ${reservation.client.lastName || ''}`
+  const reservationCode = reservation.reservationCode || '';
+  const clientName = reservation.client
+    ? `${reservation.client.firstName} ${reservation.client.lastName}`
     : '';
+  const action = reservation.active ? 'desactivar' : 'activar';
 
   return (
-    <Modal show={show} onHide={onHide} centered>
+    <Modal show={show} onHide={onHide} centered className="persona-modal">
       <Modal.Header closeButton>
-        <Modal.Title>Cambiar Estado de Reservación</Modal.Title>
+        <Modal.Title>{reservation.active ? 'Desactivar' : 'Activar'} Reservación</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <p>
-          ¿Estás seguro que deseas {isActive ? 'desactivar' : 'activar'} la reservación 
-          <strong> {reservationCode}</strong> del cliente 
-          <strong> {clientName}</strong>?
+          ¿Estás seguro de que deseas <strong>{action}</strong> la reservación{' '}
+          <strong>{reservationCode}</strong> del cliente{' '}
+          <strong>{clientName}</strong>?
         </p>
+        {reservation.active ? (
+          <p className="text-warning">
+            La reservación no estará disponible para nuevos clientes hasta que se active nuevamente.
+          </p>
+        ) : (
+          <p className="text-success">
+            La reservación estará disponible para nuevos clientes.
+          </p>
+        )}
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>
+        <Button variant="secondary-persona" onClick={onHide}>
           Cancelar
         </Button>
-        <Button 
-          variant={isActive ? 'warning' : 'success'} 
-          onClick={handleConfirm}
-        >
-          {isActive ? 'Desactivar' : 'Activar'}
+        <Button variant="primary-persona" onClick={handleConfirm}>
+          {reservation.active ? 'Desactivar' : 'Activar'}
         </Button>
       </Modal.Footer>
     </Modal>

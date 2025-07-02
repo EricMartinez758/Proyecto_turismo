@@ -1,111 +1,173 @@
 import React from 'react';
 import { Table, Button, Badge } from 'react-bootstrap';
-import { PDFDownloadLink } from '@react-pdf/renderer';
-import InvoicePDF from './InvoicePDF';
-
-const ReservationTable = ({ reservations, onEdit, onStatusChange, onCancel }) => {
-  const calculateTotal = (reservation) => {
-    const unitPrice = reservation.activity?.price?.[reservation.paymentMethod] || 0;
-    const people = reservation.people || 1;
-    return unitPrice * people;
-  };
-
+const ReservationTable = ({ reservations, onEdit, onStatusChange, onCancel, onView }) => {
   return (
-    <div className="table-responsive">
-      <Table className="mt-4">
-        <thead className="table-light">
+    <div className="reservation-list">
+      <Table hover className="persona-table">
+        <thead>
           <tr>
             <th>Código</th>
             <th>Fecha</th>
             <th>Actividad</th>
-            <th>Ubicación</th>
             <th>Cliente</th>
             <th>Personas</th>
-            <th>Pago</th>
             <th>Total</th>
             <th>Estado</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {reservations.map((reservation) => {
-            const rowStyle = reservation.canceled
-              ? 'table-danger'
-              : !reservation.active
-              ? 'table-secondary'
-              : '';
-            const total = calculateTotal(reservation);
-
-            return (
-              <tr key={reservation.id} className={rowStyle}>
+          {reservations.length > 0 ? (
+            reservations.map(reservation => (
+              <tr key={reservation.id}>
                 <td>{reservation.reservationCode}</td>
                 <td>{reservation.reservationDate}</td>
-                <td>{reservation.activity?.type}</td>
-                <td>{reservation.activity?.location}</td>
                 <td>
-                  {reservation.client.firstName} {reservation.client.lastName}
-                  <br />
-                  <small className="text-muted">{reservation.client.idNumber}</small>
-                </td>
-                <td>{reservation.people || 1}</td>
-                <td>
-                  {reservation.paymentMethod}
-                  <br />
-                  <small>{total.toFixed(2)} {reservation.paymentMethod}</small>
-                </td>
-                <td>{total.toFixed(2)} {reservation.paymentMethod}</td>
-                <td>
-                  <Badge bg={reservation.canceled ? 'danger' : reservation.active ? 'success' : 'secondary'}>
-                    {reservation.canceled ? 'Cancelada' : reservation.active ? 'Activa' : 'Inactiva'}
+                  <Badge bg="secondary" className="text-uppercase">
+                    {reservation.activity.type}
                   </Badge>
                 </td>
                 <td>
-                  <div className="d-flex flex-wrap gap-1">
+                  {reservation.client.firstName} {reservation.client.lastName}
+                  <br />
+                  <small className="text-muted">({reservation.client.idNumber})</small>
+                </td>
+                <td>{reservation.people}</td>
+                <td>
+                  {(reservation.activity.price[reservation.paymentMethod] * reservation.people).toFixed(2)} {reservation.paymentMethod}
+                </td>
+                <td>
+                  {reservation.canceled ? (
+                    <Badge bg="danger" className="badge-inactive">
+                      Cancelada
+                    </Badge>
+                  ) : reservation.active ? (
+                    <Badge bg="success" className="badge-active">
+                      Activa
+                    </Badge>
+                  ) : (
+                    <Badge bg="warning" className="badge-inactive text-dark">
+                      Inactiva
+                    </Badge>
+                  )}
+                </td>
+                <td>
+                  <div className="d-flex flex-wrap gap-2">
                     <Button
-                      variant="outline-primary"
+                      variant="info"
                       size="sm"
+                      className="btn-info-persona2"
+                      onClick={() => onView(reservation)}
+                    >
+                      <i className="bi bi-eye-fill me-1"></i>
+                      Ver
+                    </Button>
+                    <Button
+                      variant="info"
+                      size="sm"
+                      className="btn-info-persona"
                       onClick={() => onEdit(reservation)}
                       disabled={reservation.canceled}
                     >
-                      <i className="bi bi-pencil"></i>
+                      <i className="bi bi-pencil-square me-1"></i>
+                      Editar
                     </Button>
                     <Button
-                      variant={reservation.active ? 'outline-warning' : 'outline-success'}
+                      variant={reservation.active ? 'warning' : 'success'}
                       size="sm"
+                      className={reservation.active ? 'btn-warning-persona' : 'btn-success-persona'}
                       onClick={() => onStatusChange(reservation)}
                       disabled={reservation.canceled}
                     >
-                      {reservation.active ? (
-                        <i className="bi bi-eye-slash"></i>
-                      ) : (
-                        <i className="bi bi-eye"></i>
-                      )}
+                      <i className={`bi ${reservation.active ? 'bi-pause-fill' : 'bi-play-fill'} me-1`}></i>
+                      {reservation.active ? 'Desactivar' : 'Activar'}
                     </Button>
-                    <Button
-                      variant="outline-danger"
-                      size="sm"
-                      onClick={() => onCancel(reservation)}
-                      disabled={reservation.canceled}
-                    >
-                      <i className="bi bi-x-circle"></i>
-                    </Button>
-                    <PDFDownloadLink
-                      document={<InvoicePDF reservation={reservation} total={total} />}
-                      fileName={`factura_${reservation.reservationCode}.pdf`}
-                    >
-                      {({ loading }) => (
-                        <Button variant="outline-dark" size="sm" disabled={loading}>
-                          {loading ? '...' : <i className="bi bi-file-earmark-pdf"></i>}
-                        </Button>
-                      )}
-                    </PDFDownloadLink>
+                    {!reservation.canceled && (
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        className="btn-danger-persona"
+                        onClick={() => onCancel(reservation)}
+                      >
+                        <i className="bi bi-x-circle me-1"></i>
+                        Cancelar
+                      </Button>
+                    )}
                   </div>
                 </td>
               </tr>
-            );
-          })}
+            ))
+          ) : (
+            <tr>
+              <td colSpan="8" className="text-center py-4">
+                <div className="alert alert-info-persona mb-0">
+                  <i className="bi bi-info-circle-fill me-2"></i>
+                  No hay reservaciones registradas
+                </div>
+              </td>
+            </tr>
+          )}
         </tbody>
       </Table>
+
+
+      <style jsx>{`
+        .reservation-list {
+          background-color: white;
+          border-radius: 0.5rem;
+          box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+          overflow: hidden;
+        }
+        .persona-table th {
+          background-color: #0e41156a;
+          color: white;
+        }
+        .persona-table td {
+          vertical-align: middle;
+        }
+         .btn-info-persona2 {
+          background-color:rgb(45, 147, 62);
+          border-color:rgb(11, 71, 37);
+        }
+        .btn-info-persona2:hover {
+          background-color:rgb(67, 179, 97);
+          border-color:rgb(17, 91, 23);
+        } 
+        .btn-info-persona {
+          background-color:rgb(80, 191, 208);
+          border-color: #17a2b8;
+        }
+        .btn-info-persona:hover {
+          background-color: #138496;
+          border-color: #117a8b;
+        }
+        .btn-warning-persona {
+          background-color: #ffc107;
+          border-color: #ffc107;
+          color: #212529;
+        }
+        .btn-warning-persona:hover {
+          background-color: #e0a800;
+          border-color: #d39e00;
+          color: #212529;
+        }
+        .btn-success-persona {
+          background-color: #28a745;
+          border-color: #28a745;
+        }
+        .btn-success-persona:hover {
+          background-color: #218838;
+          border-color: #1e7e34;
+        }
+        @media (max-width: 768px) {
+          .persona-table td:nth-child(4),
+          .persona-table th:nth-child(4),
+          .persona-table td:nth-child(5),
+          .persona-table th:nth-child(5) {
+            display: none;
+          }
+        }
+      `}</style>
     </div>
   );
 };

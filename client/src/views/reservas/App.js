@@ -1,22 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../../scss/App.css';
+import '../../assets/css/persona.css'
 import ReservationTable from './ReservationTable';
 import CreateReservationModal from './CreateReservationModal';
 import StatusReservationModal from './StatusReservationModal';
 import CancelReservationModal from './CancelReservationModal';
-import EditReservationModal from './EditReservationModal'; 
+import EditReservationModal from './EditReservationModal';
+import ViewReservationModal from './ViewReservationModal';
 
 function App() {
   const [reservations, setReservations] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
-  const [showCancelModal, setShowCancelModal] = useState(false);
-  const [currentReservation, setCurrentReservation] = useState(null);
-  
-  // Datos de clientes disponibles (simulados)
-  const [availableClients, setAvailableClients] = useState([
+  const [showCancelModal, setShowCancelModal] = useState(false)
+  const [showViewModal, setShowViewModal] = useState(false);
+const [currentReservation, setCurrentReservation] = useState(null);
+
+const openViewModal = (reservation) => {
+  setCurrentReservation(reservation);
+  setShowViewModal(true);
+};
+
+
+  const [availableClients] = useState([
     { idNumber: '12345678', firstName: 'Juan', lastName: 'Pérez', phone: '04121234567' },
     { idNumber: '87654321', firstName: 'Ana', lastName: 'Gómez', phone: '04121112233' },
     { idNumber: '13579246', firstName: 'Carlos', lastName: 'Rodríguez', phone: '04149876543' },
@@ -24,7 +32,7 @@ function App() {
   ]);
 
   const activityPrices = {
-    tour: { USD: 50, VES: 50 * 36.5 },
+    tour: { USD: 60, VES: 50 * 36.5 },
     'plan vacional': { USD: 200, VES: 200 * 36.5 },
     maraton: { USD: 30, VES: 30 * 36.5 }
   };
@@ -86,7 +94,6 @@ function App() {
     setShowCancelModal(false);
   };
 
-  // Función faltante que causaba el error
   const openEditModal = (reservation) => {
     setCurrentReservation(reservation);
     setShowEditModal(true);
@@ -106,21 +113,20 @@ function App() {
     <div className="container mt-4">
       <header className="d-flex justify-content-between align-items-center mb-4">
         <button
-          className="btn btn-primary"
+          className="btn btn-primary-persona"
           onClick={() => setShowCreateModal(true)}
         >
           <i className="bi bi-plus-circle me-2"></i>
           Nueva Reservación
         </button>
       </header>
-
       <ReservationTable
         reservations={reservations}
         onEdit={openEditModal}
         onStatusChange={openStatusModal}
         onCancel={openCancelModal}
+        onView={openViewModal}  
       />
-
       <CreateReservationModal
         show={showCreateModal}
         onHide={() => setShowCreateModal(false)}
@@ -128,6 +134,11 @@ function App() {
         activityPrices={activityPrices}
         availableClients={availableClients}
       />
+      <ViewReservationModal
+  show={showViewModal}
+  onHide={() => setShowViewModal(false)}
+  reservation={currentReservation}
+/>
 
       <EditReservationModal
         show={showEditModal}
@@ -136,14 +147,12 @@ function App() {
         reservation={currentReservation}
         activityPrices={activityPrices}
       />
-
       <StatusReservationModal
         show={showStatusModal}
         onHide={() => setShowStatusModal(false)}
         onConfirm={handleStatusChange}
         reservation={currentReservation}
       />
-
       <CancelReservationModal
         show={showCancelModal}
         onHide={() => setShowCancelModal(false)}

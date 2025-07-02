@@ -45,12 +45,11 @@ const EditReservationModal = ({ show, onHide, onUpdate, reservation, activityPri
     }
   }, [reservation]);
 
-  // Buscar clientes por cédula o nombre
   const handleSearch = (term) => {
     setSearchTerm(term);
     if (term.length > 0) {
-      const results = clientesDisponibles.filter(client => 
-        client.idNumber.includes(term) || 
+      const results = clientesDisponibles.filter(client =>
+        client.idNumber.includes(term) ||
         `${client.firstName} ${client.lastName}`.toLowerCase().includes(term.toLowerCase())
       );
       setSearchResults(results);
@@ -61,25 +60,23 @@ const EditReservationModal = ({ show, onHide, onUpdate, reservation, activityPri
     }
   };
 
-  // Agregar cliente al grupo (CORRECCIÓN APLICADA AQUÍ)
   const addGroupMember = (client) => {
     if (!formData.groupMembers.some(m => m.idNumber === client.idNumber)) {
       setFormData(prev => ({
         ...prev,
         groupMembers: [...prev.groupMembers, client],
-        people: prev.groupMembers.length + 2 // +1 por el cliente principal
+        people: prev.groupMembers.length + 2
       }));
     }
     setSearchTerm('');
     setShowSearchResults(false);
   };
 
-  // Remover cliente del grupo
   const removeGroupMember = (idNumber) => {
     setFormData(prev => ({
       ...prev,
       groupMembers: prev.groupMembers.filter(m => m.idNumber !== idNumber),
-      people: prev.groupMembers.length // -1 porque aún no se ha removido
+      people: prev.groupMembers.length
     }));
   };
 
@@ -119,16 +116,16 @@ const EditReservationModal = ({ show, onHide, onUpdate, reservation, activityPri
   };
 
   return (
-    <Modal show={show} onHide={onHide} size="lg">
+    <Modal show={show} onHide={onHide} size="lg" className="persona-modal">
       <Modal.Header closeButton>
         <Modal.Title>
           {formData.reservationCode ? `Editar Reservación ${formData.reservationCode}` : 'Editar Reservación'}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={handleSubmit} className="persona-form-card">
           <Form.Group className="mb-3">
-            <Form.Label>Fecha de Reservación</Form.Label>
+            <Form.Label className="form-label">Fecha de Reservación</Form.Label>
             <Form.Control
               type="date"
               name="reservationDate"
@@ -139,7 +136,7 @@ const EditReservationModal = ({ show, onHide, onUpdate, reservation, activityPri
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Seleccionar Actividad</Form.Label>
+            <Form.Label className="form-label">Seleccionar Actividad</Form.Label>
             <Form.Select
               name="activity"
               value={`${formData.activity.type}_${formData.activity.location}`}
@@ -155,7 +152,7 @@ const EditReservationModal = ({ show, onHide, onUpdate, reservation, activityPri
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Cliente Principal</Form.Label>
+            <Form.Label className="form-label">Cliente Principal</Form.Label>
             <Form.Select
               name="client"
               value={formData.client.idNumber}
@@ -171,7 +168,7 @@ const EditReservationModal = ({ show, onHide, onUpdate, reservation, activityPri
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Agregar Integrantes al Grupo</Form.Label>
+            <Form.Label className="form-label">Agregar Integrantes al Grupo</Form.Label>
             <InputGroup>
               <Form.Control
                 type="text"
@@ -184,9 +181,9 @@ const EditReservationModal = ({ show, onHide, onUpdate, reservation, activityPri
             {showSearchResults && (
               <ListGroup className="mt-2" style={{ maxHeight: '200px', overflowY: 'auto' }}>
                 {searchResults.map((client, index) => (
-                  <ListGroup.Item 
-                    key={index} 
-                    action 
+                  <ListGroup.Item
+                    key={index}
+                    action
                     onClick={() => addGroupMember(client)}
                     disabled={client.idNumber === formData.client.idNumber}
                   >
@@ -202,14 +199,14 @@ const EditReservationModal = ({ show, onHide, onUpdate, reservation, activityPri
 
           {formData.groupMembers.length > 0 && (
             <Form.Group className="mb-3">
-              <Form.Label>Integrantes del Grupo</Form.Label>
+              <Form.Label className="form-label">Integrantes del Grupo</Form.Label>
               <div className="border p-2 rounded" style={{ maxHeight: '150px', overflowY: 'auto' }}>
                 {formData.groupMembers.map((member, index) => (
-                  <Badge key={index} bg="info" className="me-2 mb-2 d-inline-flex align-items-center">
+                  <Badge key={index} bg="info" className="badge-guia me-2 mb-2 d-inline-flex align-items-center">
                     {member.firstName} {member.lastName} ({member.idNumber})
-                    <Button 
-                      variant="link" 
-                      size="sm" 
+                    <Button
+                      variant="link"
+                      size="sm"
                       className="text-white p-0 ms-2"
                       onClick={() => removeGroupMember(member.idNumber)}
                     >
@@ -222,7 +219,7 @@ const EditReservationModal = ({ show, onHide, onUpdate, reservation, activityPri
           )}
 
           <Form.Group className="mb-3">
-            <Form.Label>Cantidad Total de Personas</Form.Label>
+            <Form.Label className="form-label">Cantidad Total de Personas</Form.Label>
             <Form.Control
               type="number"
               name="people"
@@ -238,9 +235,10 @@ const EditReservationModal = ({ show, onHide, onUpdate, reservation, activityPri
           </Form.Group>
 
           <h5 className="mt-4 mb-3">Información de Pago</h5>
+
           <div className="row">
             <Form.Group className="mb-3 col-md-6">
-              <Form.Label>Método de Pago</Form.Label>
+              <Form.Label className="form-label">Método de Pago</Form.Label>
               <Form.Select
                 name="paymentMethod"
                 value={formData.paymentMethod}
@@ -253,8 +251,9 @@ const EditReservationModal = ({ show, onHide, onUpdate, reservation, activityPri
                 <option value="VES">Bolívares (VES)</option>
               </Form.Select>
             </Form.Group>
+
             <Form.Group className="mb-3 col-md-6">
-              <Form.Label>Total ({formData.paymentMethod})</Form.Label>
+              <Form.Label className="form-label">Total ({formData.paymentMethod})</Form.Label>
               <Form.Control
                 type="text"
                 value={calculateTotal().toFixed(2)}
@@ -264,17 +263,17 @@ const EditReservationModal = ({ show, onHide, onUpdate, reservation, activityPri
           </div>
 
           <div className="d-flex justify-content-end mt-4">
-            <Button variant="secondary" onClick={onHide} className="me-2">
+            <Button variant="secondary-persona" onClick={onHide} className="me-2">
               Cancelar
             </Button>
-            <Button variant="primary" type="submit">
+            <Button variant="primary-persona" type="submit">
               Actualizar Reservación
             </Button>
           </div>
         </Form>
 
         {showInvoice && formData.reservationCode && (
-          <div className="mt-4 p-3 border rounded">
+          <div className="mt-4 p-3 border rounded medical-history-card">
             <h5>Factura Actualizada</h5>
             <PDFDownloadLink
               document={<InvoicePDF reservation={formData} total={calculateTotal()} />}

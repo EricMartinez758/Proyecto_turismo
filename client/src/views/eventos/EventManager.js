@@ -4,15 +4,14 @@ import CreateEvent from './CreateEvent';
 import EditEvent from './EditEvent';
 import ViewEvent from './ViewEvent';
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
+import '../../assets/css/persona.css'
 
 const EventManager = () => {
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
-
   const [showCreate, setShowCreate] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [showView, setShowView] = useState(false);
-
   const [guides] = useState([
     { id: 1, cedula: '1234567890', nombre: 'Juan Pérez' },
     { id: 2, cedula: '0987654321', nombre: 'María García' },
@@ -45,8 +44,6 @@ const EventManager = () => {
 
   return (
     <div className="event-manager container mt-4">
-      
-
       <EventList
         events={events}
         onView={(event) => {
@@ -60,9 +57,8 @@ const EventManager = () => {
         onToggleStatus={toggleEventStatus}
         onCreate={() => setShowCreate(true)}
       />
-
       {/* Modal Crear */}
-      <Modal isOpen={showCreate} toggle={() => setShowCreate(false)} size="lg">
+      <Modal isOpen={showCreate} toggle={() => setShowCreate(false)} size="lg" className="persona-modal">
         <ModalHeader toggle={() => setShowCreate(false)}>Crear Evento</ModalHeader>
         <ModalBody>
           <CreateEvent
@@ -73,9 +69,8 @@ const EventManager = () => {
           />
         </ModalBody>
       </Modal>
-
       {/* Modal Ver */}
-      <Modal isOpen={showView} toggle={() => setShowView(false)} size="lg">
+      <Modal isOpen={showView} toggle={() => setShowView(false)} size="lg" className="persona-modal">
         <ModalHeader toggle={() => setShowView(false)}>Detalles del Evento</ModalHeader>
         <ModalBody>
           <ViewEvent
@@ -84,9 +79,8 @@ const EventManager = () => {
           />
         </ModalBody>
       </Modal>
-
       {/* Modal Editar */}
-      <Modal isOpen={showEdit} toggle={() => setShowEdit(false)} size="lg">
+      <Modal isOpen={showEdit} toggle={() => setShowEdit(false)} size="lg" className="persona-modal">
         <ModalHeader toggle={() => setShowEdit(false)}>Editar Evento</ModalHeader>
         <ModalBody>
           <EditEvent
