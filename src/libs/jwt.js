@@ -1,12 +1,18 @@
-// libs/jwt.js
-import { TOKEN_SECRET } from "../config.js";
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
+import { TOKEN_SECRET } from '../config.js';
 
-export async function createAccessToken(payload) {
-   return new Promise((resolve, reject) => {
-     jwt.sign(payload, TOKEN_SECRET, { expiresIn: "1h" }, (err, token) => { 
-       if (err) reject(err);
-       resolve(token);
-   });
-   });
+export function createAccessToken(payload) { // Payload debería ser { id, correo, role }
+  return new Promise((resolve, reject) => {
+    jwt.sign(
+      payload, // Asegúrate de que este payload ya contenga { id, correo, role }
+      TOKEN_SECRET,
+      {
+        expiresIn: "1h",
+      },
+      (err, token) => {
+        if (err) reject(err);
+        resolve(token);
+      }
+    );
+  });
 }
