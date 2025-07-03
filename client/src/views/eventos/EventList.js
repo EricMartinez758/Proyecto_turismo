@@ -3,7 +3,7 @@ import React from 'react';
 const EventList = ({ events, onView, onEdit, onToggleStatus, onCreate }) => {
   return (
     <div className="event-list">
-      <button onClick={onCreate} className="btn btn-primary-persona mb-3">
+      <button onClick={onCreate} className="btn-persona-primary mb-3" >
         Crear Nuevo Evento
       </button>
      

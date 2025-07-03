@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
+import '../../assets/css/tasas.css'; 
 
 const CreateTasa = ({ monedas, tasasExistentes, onCreate, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -25,29 +26,28 @@ const CreateTasa = ({ monedas, tasasExistentes, onCreate, onCancel }) => {
     });
   };
 
-  // Filtrar monedas disponibles (no existentes)
-  const monedasDisponibles = monedas.filter(moneda => 
+  const monedasDisponibles = monedas.filter(moneda =>
     !tasasExistentes.some(tasa => tasa.moneda === moneda.codigo)
   );
 
   return (
     <div className="create-tasa">
       <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Moneda:</label>
+        <div className="tasas-form-group">
+          <label className="tasas-form-label">Moneda:</label>
           <select
             name="moneda"
             value={formData.moneda}
             onChange={handleChange}
-            className="form-control"
+            className="tasas-form-control"
             required
           >
             <option value="">Seleccione una moneda</option>
             {monedas.map(moneda => {
               const existe = tasasExistentes.some(t => t.moneda === moneda.codigo);
               return (
-                <option 
-                  key={moneda.codigo} 
+                <option
+                  key={moneda.codigo}
                   value={moneda.codigo}
                   disabled={existe}
                 >
@@ -56,42 +56,42 @@ const CreateTasa = ({ monedas, tasasExistentes, onCreate, onCancel }) => {
               );
             })}
           </select>
-          <small className="form-text text-muted">
+          <small style={{ color: '#7f8c8d', fontSize: '12px' }}>
             Solo se muestran monedas que no tienen tasa registrada
           </small>
         </div>
         
-        <div className="form-group">
-          <label>Valor equivalente a 1 USD:</label>
+        <div className="tasas-form-group">
+          <label className="tasas-form-label">Valor equivalente a 1 USD:</label>
           <input
             type="number"
             name="valor"
             value={formData.valor}
             onChange={handleChange}
-            className="form-control"
+            className="tasas-form-control"
             step="0.0001"
             min="0.0001"
             required
           />
         </div>
         
-        <div className="form-group">
-          <label>Fecha de vigencia:</label>
+        <div className="tasas-form-group">
+          <label className="tasas-form-label">Fecha de vigencia:</label>
           <input
             type="date"
             name="fecha"
             value={formData.fecha}
             onChange={handleChange}
-            className="form-control"
+            className="tasas-form-control"
             required
           />
         </div>
         
-        <div className="form-group mt-4">
-          <button type="submit" className="btn btn-primary mr-2">
+        <div className="tasas-form-actions">
+          <button type="submit" className="tasas-button tasas-button-primary">
             Guardar Tasa
           </button>
-          <button type="button" className="btn btn-secondary" onClick={onCancel}>
+          <button type="button" className="tasas-button tasas-button-secondary" onClick={onCancel}>
             Cancelar
           </button>
         </div>

@@ -17,7 +17,7 @@ const ViewReservationModal = ({ show, onHide, reservation }) => {
   } = reservation;
 
   return (
-    <Modal show={show} onHide={onHide} size="lg" className="persona-modal">
+    <Modal show={show} onHide={onHide} size="lg" className="reserva-modal">
       <Modal.Header closeButton>
         <Modal.Title>
           <i className="bi bi-eye-fill me-2"></i>
@@ -26,7 +26,7 @@ const ViewReservationModal = ({ show, onHide, reservation }) => {
       </Modal.Header>
       
       <Modal.Body>
-        <div className="persona-form-card p-4">
+        <div className="reserva-form-card p-4">
           <div className="row mb-4">
             <div className="col-md-6">
               <h5 className="text-primary mb-3">
@@ -150,8 +150,8 @@ const ViewReservationModal = ({ show, onHide, reservation }) => {
         </div>
       </Modal.Body>
       
-      <Modal.Footer className="persona-modal-footer">
-        <Button variant="secondary-persona" onClick={onHide}>
+      <Modal.Footer className="reserva-modal-footer">
+        <Button variant="secondary-reserva" onClick={onHide}>
           <i className="bi bi-x-circle me-2"></i>
           Cerrar
         </Button>

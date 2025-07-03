@@ -3,7 +3,7 @@ import { Table, Button, Badge } from 'react-bootstrap';
 const ReservationTable = ({ reservations, onEdit, onStatusChange, onCancel, onView }) => {
   return (
     <div className="reservation-list">
-      <Table hover className="persona-table">
+      <Table hover className="reserva-table">
         <thead>
           <tr>
             <th>Código</th>
@@ -56,7 +56,7 @@ const ReservationTable = ({ reservations, onEdit, onStatusChange, onCancel, onVi
                     <Button
                       variant="info"
                       size="sm"
-                      className="btn-info-persona2"
+                      className="btn-info-reserva2"
                       onClick={() => onView(reservation)}
                     >
                       <i className="bi bi-eye-fill me-1"></i>
@@ -65,7 +65,7 @@ const ReservationTable = ({ reservations, onEdit, onStatusChange, onCancel, onVi
                     <Button
                       variant="info"
                       size="sm"
-                      className="btn-info-persona"
+                      className="btn-info-reserva"
                       onClick={() => onEdit(reservation)}
                       disabled={reservation.canceled}
                     >
@@ -75,7 +75,7 @@ const ReservationTable = ({ reservations, onEdit, onStatusChange, onCancel, onVi
                     <Button
                       variant={reservation.active ? 'warning' : 'success'}
                       size="sm"
-                      className={reservation.active ? 'btn-warning-persona' : 'btn-success-persona'}
+                      className={reservation.active ? 'btn-warning-reserva' : 'btn-success-reserva'}
                       onClick={() => onStatusChange(reservation)}
                       disabled={reservation.canceled}
                     >
@@ -86,7 +86,7 @@ const ReservationTable = ({ reservations, onEdit, onStatusChange, onCancel, onVi
                       <Button
                         variant="danger"
                         size="sm"
-                        className="btn-danger-persona"
+                        className="btn-danger-reserva"
                         onClick={() => onCancel(reservation)}
                       >
                         <i className="bi bi-x-circle me-1"></i>
@@ -100,7 +100,7 @@ const ReservationTable = ({ reservations, onEdit, onStatusChange, onCancel, onVi
           ) : (
             <tr>
               <td colSpan="8" className="text-center py-4">
-                <div className="alert alert-info-persona mb-0">
+                <div className="alert alert-info-reserva mb-0">
                   <i className="bi bi-info-circle-fill me-2"></i>
                   No hay reservaciones registradas
                 </div>
@@ -111,63 +111,7 @@ const ReservationTable = ({ reservations, onEdit, onStatusChange, onCancel, onVi
       </Table>
 
 
-      <style jsx>{`
-        .reservation-list {
-          background-color: white;
-          border-radius: 0.5rem;
-          box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-          overflow: hidden;
-        }
-        .persona-table th {
-          background-color: #0e41156a;
-          color: white;
-        }
-        .persona-table td {
-          vertical-align: middle;
-        }
-         .btn-info-persona2 {
-          background-color:rgb(45, 147, 62);
-          border-color:rgb(11, 71, 37);
-        }
-        .btn-info-persona2:hover {
-          background-color:rgb(67, 179, 97);
-          border-color:rgb(17, 91, 23);
-        } 
-        .btn-info-persona {
-          background-color:rgb(80, 191, 208);
-          border-color: #17a2b8;
-        }
-        .btn-info-persona:hover {
-          background-color: #138496;
-          border-color: #117a8b;
-        }
-        .btn-warning-persona {
-          background-color: #ffc107;
-          border-color: #ffc107;
-          color: #212529;
-        }
-        .btn-warning-persona:hover {
-          background-color: #e0a800;
-          border-color: #d39e00;
-          color: #212529;
-        }
-        .btn-success-persona {
-          background-color: #28a745;
-          border-color: #28a745;
-        }
-        .btn-success-persona:hover {
-          background-color: #218838;
-          border-color: #1e7e34;
-        }
-        @media (max-width: 768px) {
-          .persona-table td:nth-child(4),
-          .persona-table th:nth-child(4),
-          .persona-table td:nth-child(5),
-          .persona-table th:nth-child(5) {
-            display: none;
-          }
-        }
-      `}</style>
+      
     </div>
   );
 };

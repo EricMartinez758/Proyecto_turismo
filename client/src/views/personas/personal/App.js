@@ -96,7 +96,7 @@ const App = () => {
     return (
         <CContainer>
             <button
-                className="btn btn-primary mb-3"
+                className="btn-persona-primary mb-3"
                 onClick={() => setShowCreateModal(true)}
             >
                 Crear Persona

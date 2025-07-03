@@ -14,7 +14,7 @@ const CancelReservationModal = ({ show, onHide, onConfirm, reservation }) => {
     : '';
 
   return (
-    <Modal show={show} onHide={onHide} centered className="persona-modal">
+    <Modal show={show} onHide={onHide} centered className="reserva-modal">
       <Modal.Header closeButton>
         <Modal.Title>Cancelar Reservación</Modal.Title>
       </Modal.Header>
@@ -29,10 +29,10 @@ const CancelReservationModal = ({ show, onHide, onConfirm, reservation }) => {
         </p>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary-persona" onClick={onHide}>
+        <Button variant="secondary-reserva" onClick={onHide}>
           No Cancelar
         </Button>
-        <Button variant="danger-persona" onClick={handleConfirm}>
+        <Button variant="danger-reserva" onClick={handleConfirm}>
           Cancelar Reservación
         </Button>
       </Modal.Footer>

@@ -15,7 +15,7 @@ const StatusReservationModal = ({ show, onHide, onConfirm, reservation }) => {
   const action = reservation.active ? 'desactivar' : 'activar';
 
   return (
-    <Modal show={show} onHide={onHide} centered className="persona-modal">
+    <Modal show={show} onHide={onHide} centered className="reserva-modal">
       <Modal.Header closeButton>
         <Modal.Title>{reservation.active ? 'Desactivar' : 'Activar'} Reservación</Modal.Title>
       </Modal.Header>
@@ -36,10 +36,10 @@ const StatusReservationModal = ({ show, onHide, onConfirm, reservation }) => {
         )}
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary-persona" onClick={onHide}>
+        <Button variant="secondary-reserva" onClick={onHide}>
           Cancelar
         </Button>
-        <Button variant="primary-persona" onClick={handleConfirm}>
+        <Button variant="primary-reserva" onClick={handleConfirm}>
           {reservation.active ? 'Desactivar' : 'Activar'}
         </Button>
       </Modal.Footer>

@@ -103,12 +103,12 @@ const CreateReservationModal = ({ show, onHide, onCreate, activityPrices, availa
   };
 
   return (
-    <Modal show={show} onHide={onHide} size="lg" className="persona-modal">
+    <Modal show={show} onHide={onHide} size="lg" className="reserva-modal">
       <Modal.Header closeButton>
         <Modal.Title>Nueva Reservación</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form onSubmit={handleSubmit} className="persona-form-card">
+        <Form onSubmit={handleSubmit} className="reserva-form-card">
           <Form.Group className="mb-3">
             <Form.Label className="form-label">Fecha de Reservación</Form.Label>
             <Form.Control
@@ -242,10 +242,10 @@ const CreateReservationModal = ({ show, onHide, onCreate, activityPrices, availa
           </div>
 
           <div className="d-flex justify-content-end mt-4">
-            <Button variant="secondary-persona" onClick={onHide} className="me-2">
+            <Button variant="secondary-reserva" onClick={onHide} className="me-2">
               Cancelar
             </Button>
-            <Button variant="primary-persona" type="submit">
+            <Button variant="primary-reserva" type="submit">
               Guardar Reservación
             </Button>
           </div>

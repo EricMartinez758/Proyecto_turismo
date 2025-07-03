@@ -3,16 +3,14 @@ import TasaList from './TasaList';
 import CreateTasa from './CreateTasa';
 import EditTasa from './EditTasa';
 import ViewTasa from './ViewTasa';
-import { Modal, ModalHeader, ModalBody } from 'reactstrap';
+import '../../assets/css/tasas.css';
 
 const TasasManager = () => {
   const [tasas, setTasas] = useState([]);
   const [selectedTasa, setSelectedTasa] = useState(null);
-
   const [showCreate, setShowCreate] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [showView, setShowView] = useState(false);
-
   const [monedas] = useState([
     { codigo: 'EUR', nombre: 'Euro', simbolo: '€' },
     { codigo: 'COP', nombre: 'Peso Colombiano', simbolo: '$' },
@@ -41,8 +39,8 @@ const TasasManager = () => {
   ]);
 
   const handleCreateTasa = (newTasa) => {
-    setTasas([...tasas, { 
-      ...newTasa, 
+    setTasas([...tasas, {
+      ...newTasa,
       id: Date.now(),
       nombreMoneda: monedas.find(m => m.codigo === newTasa.moneda)?.nombre,
       simbolo: monedas.find(m => m.codigo === newTasa.moneda)?.simbolo,
@@ -78,8 +76,8 @@ const TasasManager = () => {
   };
 
   return (
-    <div className="tasas-manager container mt-4">
-      <h2 className="mb-4">Administración de Tasas de Cambio</h2>
+    <div className="tasas-container">
+      <h2 className="tasas-title">Administración de Tasas de Cambio</h2>
       
       <TasaList
         tasas={tasas}
@@ -94,40 +92,82 @@ const TasasManager = () => {
         }}
         onCreate={() => setShowCreate(true)}
       />
-
-      <Modal isOpen={showCreate} toggle={() => setShowCreate(false)}>
-        <ModalHeader toggle={() => setShowCreate(false)}>Crear Nueva Tasa</ModalHeader>
-        <ModalBody>
-          <CreateTasa
-            monedas={monedas}
-            tasasExistentes={tasas}
-            onCreate={handleCreateTasa}
-            onCancel={() => setShowCreate(false)}
-          />
-        </ModalBody>
-      </Modal>
-
-      <Modal isOpen={showView} toggle={() => setShowView(false)} size="lg">
-        <ModalHeader toggle={() => setShowView(false)}>Detalles de Tasa</ModalHeader>
-        <ModalBody>
-          <ViewTasa
-            tasa={selectedTasa}
-            onBack={() => setShowView(false)}
-          />
-        </ModalBody>
-      </Modal>
-
-      <Modal isOpen={showEdit} toggle={() => setShowEdit(false)}>
-        <ModalHeader toggle={() => setShowEdit(false)}>Editar Tasa</ModalHeader>
-        <ModalBody>
-          <EditTasa
-            tasa={selectedTasa}
-            monedas={monedas}
-            onUpdate={handleUpdateTasa}
-            onCancel={() => setShowEdit(false)}
-          />
-        </ModalBody>
-      </Modal>
+      
+      {/* Modal para crear nueva tasa */}
+      {showCreate && (
+        <div className="tasas-modal">
+          <div className="tasas-modal-content">
+            <div className="tasas-modal-header">
+              <h3 className="tasas-modal-title">Crear Nueva Tasa</h3>
+              <button 
+                className="tasas-modal-close" 
+                onClick={() => setShowCreate(false)}
+                aria-label="Cerrar modal"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="tasas-modal-body">
+              <CreateTasa
+                monedas={monedas}
+                tasasExistentes={tasas}
+                onCreate={handleCreateTasa}
+                onCancel={() => setShowCreate(false)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Modal para ver detalles de tasa */}
+      {showView && (
+        <div className="tasas-modal">
+          <div className="tasas-modal-content" style={{ maxWidth: '800px' }}>
+            <div className="tasas-modal-header">
+              <h3 className="tasas-modal-title">Detalles de Tasa</h3>
+              <button 
+                className="tasas-modal-close" 
+                onClick={() => setShowView(false)}
+                aria-label="Cerrar modal"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="tasas-modal-body">
+              <ViewTasa
+                tasa={selectedTasa}
+                onBack={() => setShowView(false)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Modal para editar tasa */}
+      {showEdit && (
+        <div className="tasas-modal">
+          <div className="tasas-modal-content">
+            <div className="tasas-modal-header">
+              <h3 className="tasas-modal-title">Editar Tasa</h3>
+              <button 
+                className="tasas-modal-close" 
+                onClick={() => setShowEdit(false)}
+                aria-label="Cerrar modal"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="tasas-modal-body">
+              <EditTasa
+                tasa={selectedTasa}
+                monedas={monedas}
+                onUpdate={handleUpdateTasa}
+                onCancel={() => setShowEdit(false)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

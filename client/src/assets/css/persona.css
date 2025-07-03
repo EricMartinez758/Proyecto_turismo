@@ -14,10 +14,10 @@ body{
 }
 
 h5{
-  color: #194f24;
+ color: #0e4115;
 }
 .persona-table th {
-  background-color: #195421c2;
+background-color: #0e4115;
   color: #ffffff;
   padding: 0.75rem;
   text-align: left;
@@ -29,7 +29,7 @@ h5{
 }
 
 .persona-table tr:hover {
-  background-color: rgba(46, 207, 13, 0.841);
+  background-color: rgba(185, 255, 173, 0.152);
 }
 
 /* Badge styles */
@@ -43,7 +43,7 @@ h5{
 
 
 .badge-active {
-  background-color: #0b4817b7;
+  background-color: #0e4115;
   color: white;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
@@ -70,16 +70,18 @@ h5{
 }
 
 /* Button styles */
-.btn-primary-persona {
-  background-color: #094a16d3;
-  border-color: #0b4817b7;
-  color: white;
-  
+.btn-persona-primary{
+    background-color: #0e4115;
+    border-color: #0e4115;
+    color: white;
+    font-weight: 500;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.3rem;
+    transition: background-color 0.2s ease-in-out;
 }
-
-.btn-primary-persona:hover {
-  background-color: #1e7930;
-  border-color: #194f24;
+.btn-persona-primary :hover {
+    background-color: #10741f;
+    border-color: #0a2a0e;
 }
 
 .btn-secondary-persona {

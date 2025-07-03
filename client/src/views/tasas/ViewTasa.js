@@ -1,11 +1,11 @@
 import React from 'react';
-import { Card, CardBody, Button, Table, Badge } from 'reactstrap';
+import '../../assets/css/tasas.css';
 
 const formatDateTime = (dateString) => {
   if (!dateString) return 'N/A';
-  const options = { 
-    year: 'numeric', 
-    month: 'short', 
+  const options = {
+    year: 'numeric',
+    month: 'short',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit'
@@ -18,49 +18,49 @@ const ViewTasa = ({ tasa, onBack }) => {
 
   return (
     <div className="view-tasa">
-      <Card>
-        <CardBody>
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h4 className="mb-0">Detalles de Tasa</h4>
-            <Button color="secondary" onClick={onBack} size="sm">
+      <div className="tasas-card">
+        <div className="tasas-card-body">
+          <div className="tasas-list-header">
+            <h4 className="tasas-list-title">Detalles de Tasa</h4>
+            <button className="tasas-button tasas-button-secondary" onClick={onBack}>
               Volver
-            </Button>
+            </button>
           </div>
           
-          <div className="row mb-4">
-            <div className="col-md-4">
-              <strong>Moneda:</strong>
-              <div className="mt-2">
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', marginBottom: '20px' }}>
+            <div style={{ flex: '1', minWidth: '200px' }}>
+              <strong className="tasas-form-label">Moneda:</strong>
+              <div style={{ marginTop: '8px' }}>
                 <h5>
-                  <Badge color="primary">
+                  <span className="tasas-badge tasas-badge-primary">
                     {tasa.nombreMoneda} ({tasa.moneda} {tasa.simbolo && `- ${tasa.simbolo}`})
-                  </Badge>
+                  </span>
                 </h5>
               </div>
             </div>
-            <div className="col-md-4">
-              <strong>Valor actual:</strong>
-              <div className="mt-2">
+            <div style={{ flex: '1', minWidth: '200px' }}>
+              <strong className="tasas-form-label">Valor actual:</strong>
+              <div style={{ marginTop: '8px' }}>
                 <h4>
-                  <Badge color="success">
+                  <span className="tasas-badge tasas-badge-success">
                     1 USD = {tasa.valor} {tasa.moneda}
-                  </Badge>
+                  </span>
                 </h4>
               </div>
             </div>
-            <div className="col-md-4">
-              <strong>Vigente desde:</strong>
-              <div className="mt-2">
-                <Badge color="info">
+            <div style={{ flex: '1', minWidth: '200px' }}>
+              <strong className="tasas-form-label">Vigente desde:</strong>
+              <div style={{ marginTop: '8px' }}>
+                <span className="tasas-badge tasas-badge-info">
                   {formatDateTime(tasa.fecha)}
-                </Badge>
+                </span>
               </div>
             </div>
           </div>
           
-          <h5 className="mt-4 mb-3">Historial de Cambios</h5>
-          <Table striped bordered responsive>
-            <thead className="thead-dark">
+          <h5 style={{ marginTop: '20px', marginBottom: '15px' }}>Historial de Cambios</h5>
+          <table className="tasas-table">
+            <thead>
               <tr>
                 <th>Valor</th>
                 <th>Fecha Vigencia</th>
@@ -76,9 +76,9 @@ const ViewTasa = ({ tasa, onBack }) => {
                 </tr>
               ))}
             </tbody>
-          </Table>
-        </CardBody>
-      </Card>
+          </table>
+        </div>
+      </div>
     </div>
   );
 };

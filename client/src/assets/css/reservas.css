@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Concert+One&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Savate:ital,wght@0,200..900;1,200..900&display=swap');
+
+
+/* Estilos generales para el modal de visualización */
+.reserva-modal .modal-content {
+  border-radius: 0.75rem;
+  border: none;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.2);
+  overflow: hidden; /* Asegura que los bordes redondeados se apliquen al contenido */
+}
+body{
+ font-family: "Nunito", sans-serif;
+
+}
+/* Estilo del encabezado del modal */
+.reserva-modal .modal-header {
+  background-color: #0e4115; /* Un verde oscuro y elegante */
+  color: white;
+  border-bottom: none;
+  padding: 1rem 1.5rem;
+}
+thead th{
+    background-color: #0e4115 !important; /* Un verde oscuro y elegante */
+    color: white !important;
+}
+.reserva-modal .modal-header .modal-title {
+  font-weight: 500;
+  font-size: 1.25rem;
+}
+
+.reserva-modal .modal-header .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%); /* Hace el botón de cerrar blanco */
+}
+
+/* Estilo del cuerpo del modal */
+.reserva-modal .modal-body {
+  padding: 0;
+  background-color: #f8f9fa; /* Un fondo ligeramente gris para el contraste */
+}
+
+/* Tarjeta principal dentro del modal */
+.reserva-form-card {
+  background-color: #ffffff;
+  padding: 2rem;
+}
+
+/* Títulos de las secciones (Información General, Cliente, Pago) */
+.reserva-form-card h5 {
+  color: #0e4115; /* Verde oscuro consistente con el header */
+  font-weight: 600;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e9ecef;
+  margin-bottom: 1.5rem;
+}
+
+.reserva-form-card h5 .bi {
+  margin-right: 0.75rem;
+  font-size: 1.1em;
+}
+
+/* Estilo para las etiquetas y el texto estático */
+.reserva-form-card .form-label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.25rem;
+}
+
+.reserva-form-card .form-control-static {
+  margin-bottom: 1rem;
+  padding-left: 0;
+  color: #212529;
+  font-size: 1rem;
+}
+
+/* Badges de estado y actividad */
+.badge-guia {
+  font-size: 0.9em;
+  padding: 0.5em 0.75em;
+}
+
+/* Resumen de pago */
+.payment-summary {
+  background-color: #e9f5ec; /* Un verde muy claro */
+  border: 1px solid #d1e7dd;
+  border-radius: 0.5rem;
+  padding: 1.5rem !important;
+}
+
+.payment-summary h6 {
+  font-weight: 700;
+  color: #0e4115;
+}
+
+.payment-summary .table {
+  margin-bottom: 0;
+}
+
+.payment-summary .table th,
+.payment-summary .table td {
+  border: none;
+  padding: 0.5rem 0;
+}
+
+.payment-summary .table .table-active th,
+.payment-summary .table .table-active td {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0e4115;
+}
+
+/* Estilo del pie de página del modal */
+.reserva-modal-footer {
+  background-color: #f1f3f5;
+  border-top: 1px solid #dee2e6;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+}
+.btn-primary-reserva{
+    background-color: #0e4115;
+    border-color: #0e4115;
+    color: white;
+    font-weight: 500;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.3rem;
+    transition: background-color 0.2s ease-in-out;
+}
+.btn-primary-reserva:hover {
+    background-color: #10741f;
+    border-color: #0a2a0e;
+}
+
+.btn-secondary-reserva {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+    font-weight: 500;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.3rem;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.btn-secondary-reserva:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}

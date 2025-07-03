@@ -1,5 +1,6 @@
 import React from 'react';
-import { Table, Button, Badge } from 'reactstrap';
+import { format } from 'date-fns';
+import '../../assets/css/tasas.css';
 
 const formatDate = (dateString) => {
   if (!dateString) return 'N/A';
@@ -16,17 +17,16 @@ const TasaList = ({ tasas, monedas, onView, onEdit, onCreate }) => {
   };
 
   return (
-    <div className="tasa-list">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h4 className="mb-0">Tasas de Cambio</h4>
-        <Button color="primary" onClick={onCreate}>
-          <i className="fas fa-plus mr-2"></i>
-          Nueva Tasa
-        </Button>
+    <div className="tasas-list-container">
+      <div className="tasas-list-header">
+        <h4 className="tasas-list-title">Tasas de Cambio</h4>
+        <button className="tasas-button tasas-button-primary" onClick={onCreate}>
+          <span>+</span> Nueva Tasa
+        </button>
       </div>
       
-      <Table striped hover responsive className="mt-3">
-        <thead className="thead-dark">
+      <table className="tasas-table">
+        <thead>
           <tr>
             <th>Moneda</th>
             <th>Valor Actual</th>
@@ -45,41 +45,49 @@ const TasaList = ({ tasas, monedas, onView, onEdit, onCreate }) => {
                     <div>
                       <strong>{monedaInfo.nombre}</strong>
                       <div>
-                        <Badge color="primary">
+                        <span className="tasas-badge tasas-badge-primary">
                           {tasa.moneda} {monedaInfo.simbolo && `(${monedaInfo.simbolo})`}
-                        </Badge>
+                        </span>
                       </div>
                     </div>
                   </td>
                   <td>
-                    <Badge color="success">
+                    <span className="tasas-badge tasas-badge-success">
                       1 USD = {tasa.valor} {tasa.moneda}
-                    </Badge>
+                    </span>
                   </td>
                   <td>{formatDate(tasa.fecha)}</td>
                   <td>{formatDate(tasa.historial[tasa.historial.length - 1]?.fechaActualizacion)}</td>
                   <td>
-                    <Button color="info" size="sm" onClick={() => onView(tasa)} className="mr-2">
-                      <i className="fas fa-eye"></i> Ver
-                    </Button>
-                    <Button color="warning" size="sm" onClick={() => onEdit(tasa)}>
-                      <i className="fas fa-edit"></i> Editar
-                    </Button>
+                    <button 
+                      className="tasas-button tasas-button-info" 
+                      onClick={() => onView(tasa)}
+                    >
+                      <span></span> Ver
+                    </button>
+                    
+                
+                    <button 
+                      className="tasas-button tasas-button-warning" 
+                      onClick={() => onEdit(tasa)}
+                    >
+                      <span></span> Editar
+                    </button>
                   </td>
                 </tr>
               );
             })
           ) : (
             <tr>
-              <td colSpan="5" className="text-center py-4">
-                <div className="alert alert-info mb-0">
+              <td colSpan="5">
+                <div className="tasas-alert tasas-alert-info">
                   No hay tasas registradas. Cree una nueva tasa para comenzar.
                 </div>
               </td>
             </tr>
           )}
         </tbody>
-      </Table>
+      </table>
     </div>
   );
 };

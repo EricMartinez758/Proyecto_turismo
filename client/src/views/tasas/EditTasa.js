@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
+import '../../assets/css/tasas.css'; 
 
 const EditTasa = ({ tasa, monedas, onUpdate, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -35,46 +36,46 @@ const EditTasa = ({ tasa, monedas, onUpdate, onCancel }) => {
   return (
     <div className="edit-tasa">
       <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Moneda:</label>
-          <div className="form-control-plaintext">
+        <div className="tasas-form-group">
+          <label className="tasas-form-label">Moneda:</label>
+          <div>
             <h5>
               <strong>{monedaInfo.nombre}</strong> ({tasa?.moneda} {monedaInfo.simbolo && `- ${monedaInfo.simbolo}`})
             </h5>
           </div>
         </div>
         
-        <div className="form-group">
-          <label>Nuevo valor equivalente a 1 USD:</label>
+        <div className="tasas-form-group">
+          <label className="tasas-form-label">Nuevo valor equivalente a 1 USD:</label>
           <input
             type="number"
             name="valor"
             value={formData.valor}
             onChange={handleChange}
-            className="form-control"
+            className="tasas-form-control"
             step="0.0001"
             min="0.0001"
             required
           />
         </div>
         
-        <div className="form-group">
-          <label>Fecha de vigencia:</label>
+        <div className="tasas-form-group">
+          <label className="tasas-form-label">Fecha de vigencia:</label>
           <input
             type="date"
             name="fecha"
             value={formData.fecha}
             onChange={handleChange}
-            className="form-control"
+            className="tasas-form-control"
             required
           />
         </div>
         
-        <div className="form-group mt-4">
-          <button type="submit" className="btn btn-primary mr-2">
+        <div className="tasas-form-actions">
+          <button type="submit" className="tasas-button tasas-button-primary">
             Actualizar Tasa
           </button>
-          <button type="button" className="btn btn-secondary" onClick={onCancel}>
+          <button type="button" className="tasas-button tasas-button-secondary" onClick={onCancel}>
             Cancelar
           </button>
         </div>

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '../../scss/App.css';
-import '../../assets/css/persona.css'
+import '../../assets/css/reservas.css'
 import ReservationTable from './ReservationTable';
 import CreateReservationModal from './CreateReservationModal';
 import StatusReservationModal from './StatusReservationModal';
@@ -113,7 +112,7 @@ const openViewModal = (reservation) => {
     <div className="container mt-4">
       <header className="d-flex justify-content-between align-items-center mb-4">
         <button
-          className="btn btn-primary-persona"
+          className="btn-primary-reserva"
           onClick={() => setShowCreateModal(true)}
         >
           <i className="bi bi-plus-circle me-2"></i>
