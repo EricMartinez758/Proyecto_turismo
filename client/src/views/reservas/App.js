@@ -102,9 +102,13 @@ function App() {
   };
 
   const handlePayment = (paymentData) => {
-    console.log('Pago registrado:', paymentData);
-    setReservations(reservations.map(res =>
-      res.id === currentReservation.id ? { ...res, paid: true } : res
+  console.log('Pago registrado:', paymentData);
+  setReservations(reservations.map(res =>
+    res.id === currentReservation.id ? { 
+      ...res, 
+      paid: true,
+      paymentCurrency: paymentData.currency // Guardamos la moneda usada
+    } : res
     ));
     setShowPaymentModal(false);
   };

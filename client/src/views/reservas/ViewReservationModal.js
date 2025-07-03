@@ -13,7 +13,9 @@ const ViewReservationModal = ({ show, onHide, reservation }) => {
     paymentMethod,
     people,
     active,
-    canceled
+    canceled,
+    paid,
+    paymentCurrency = paymentMethod // Usamos paymentCurrency si existe, sino paymentMethod
   } = reservation;
 
   return (
@@ -64,6 +66,11 @@ const ViewReservationModal = ({ show, onHide, reservation }) => {
                       Inactiva
                     </Badge>
                   )}
+                  {paid && (
+                    <Badge bg="info" className="ms-2">
+                      Pagada
+                    </Badge>
+                  )}
                 </p>
               </div>
             </div>
@@ -110,13 +117,25 @@ const ViewReservationModal = ({ show, onHide, reservation }) => {
               
               <div className="mb-3">
                 <label className="form-label">Método de Pago:</label>
-                <p className="form-control-static text-uppercase">{paymentMethod}</p>
+                <p className="form-control-static text-uppercase">
+                  {paymentCurrency}
+                  {paid && (
+                    <Badge bg="success" className="ms-2">
+                      Confirmado
+                    </Badge>
+                  )}
+                </p>
               </div>
               
               <div className="mb-3">
                 <label className="form-label">Precio por Persona:</label>
                 <p className="form-control-static">
-                  {activity.price[paymentMethod]} {paymentMethod}
+                  {activity.price[paymentCurrency]} {paymentCurrency}
+                  {paymentCurrency !== 'USD' && (
+                    <small className="text-muted ms-2">
+                      (≈{activity.price['USD']} USD)
+                    </small>
+                  )}
                 </p>
               </div>
             </div>
@@ -133,13 +152,23 @@ const ViewReservationModal = ({ show, onHide, reservation }) => {
                     <tr>
                       <td>Precio Unitario:</td>
                       <td className="text-end">
-                        {activity.price[paymentMethod]} {paymentMethod}
+                        {activity.price[paymentCurrency]} {paymentCurrency}
+                        {paymentCurrency !== 'USD' && (
+                          <div className="text-muted small">
+                            ≈{activity.price['USD']} USD
+                          </div>
+                        )}
                       </td>
                     </tr>
                     <tr className="table-active">
                       <th>Total:</th>
                       <th className="text-end">
-                        {(activity.price[paymentMethod] * people).toFixed(2)} {paymentMethod}
+                        {(activity.price[paymentCurrency] * people).toFixed(2)} {paymentCurrency}
+                        {paymentCurrency !== 'USD' && (
+                          <div className="text-muted small">
+                            ≈{(activity.price['USD'] * people).toFixed(2)} USD
+                          </div>
+                        )}
                       </th>
                     </tr>
                   </tbody>
@@ -155,7 +184,6 @@ const ViewReservationModal = ({ show, onHide, reservation }) => {
           <i className="bi bi-x-circle me-2"></i>
           Cerrar
         </Button>
-        
       </Modal.Footer>
     </Modal>
   );
