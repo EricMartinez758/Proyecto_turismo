@@ -1,6 +1,7 @@
 import React from 'react';
 import { Table, Button, Badge } from 'react-bootstrap';
-const ReservationTable = ({ reservations, onEdit, onStatusChange, onCancel, onView }) => {
+
+const ReservationTable = ({ reservations, onEdit, onStatusChange, onCancel, onView, onPay }) => {
   return (
     <div className="reservation-list">
       <Table hover className="reserva-table">
@@ -35,6 +36,11 @@ const ReservationTable = ({ reservations, onEdit, onStatusChange, onCancel, onVi
                 <td>{reservation.people}</td>
                 <td>
                   {(reservation.activity.price[reservation.paymentMethod] * reservation.people).toFixed(2)} {reservation.paymentMethod}
+                  {reservation.paymentMethod !== 'USD' && (
+                    <small className="text-muted ms-2">
+                      (≈{(reservation.activity.price['USD'] * reservation.people).toFixed(2)} USD)
+                    </small>
+                  )}
                 </td>
                 <td>
                   {reservation.canceled ? (
@@ -48,6 +54,11 @@ const ReservationTable = ({ reservations, onEdit, onStatusChange, onCancel, onVi
                   ) : (
                     <Badge bg="warning" className="badge-inactive text-dark">
                       Inactiva
+                    </Badge>
+                  )}
+                  {reservation.paid && (
+                    <Badge bg="info" className="ms-2">
+                      Pagada
                     </Badge>
                   )}
                 </td>
@@ -67,7 +78,7 @@ const ReservationTable = ({ reservations, onEdit, onStatusChange, onCancel, onVi
                       size="sm"
                       className="btn-info-reserva"
                       onClick={() => onEdit(reservation)}
-                      disabled={reservation.canceled}
+                      disabled={reservation.canceled || reservation.paid}
                     >
                       <i className="bi bi-pencil-square me-1"></i>
                       Editar
@@ -77,10 +88,20 @@ const ReservationTable = ({ reservations, onEdit, onStatusChange, onCancel, onVi
                       size="sm"
                       className={reservation.active ? 'btn-warning-reserva' : 'btn-success-reserva'}
                       onClick={() => onStatusChange(reservation)}
-                      disabled={reservation.canceled}
+                      disabled={reservation.canceled || reservation.paid}
                     >
                       <i className={`bi ${reservation.active ? 'bi-pause-fill' : 'bi-play-fill'} me-1`}></i>
                       {reservation.active ? 'Desactivar' : 'Activar'}
+                    </Button>
+                    <Button
+                      variant={reservation.paid ? "success" : "primary"}
+                      size="sm"
+                      className={reservation.paid ? "btn-success-reserva" : "btn-primary-reserva"}
+                      onClick={() => !reservation.paid && onPay(reservation)}
+                      disabled={reservation.canceled || !reservation.active || reservation.paid}
+                    >
+                      <i className={`bi ${reservation.paid ? "bi-check-circle-fill" : "bi-credit-card"} me-1`}></i>
+                      {reservation.paid ? "Pagado" : "Pagar"}
                     </Button>
                     {!reservation.canceled && (
                       <Button
@@ -88,6 +109,7 @@ const ReservationTable = ({ reservations, onEdit, onStatusChange, onCancel, onVi
                         size="sm"
                         className="btn-danger-reserva"
                         onClick={() => onCancel(reservation)}
+                        disabled={reservation.paid}
                       >
                         <i className="bi bi-x-circle me-1"></i>
                         Cancelar
@@ -109,9 +131,6 @@ const ReservationTable = ({ reservations, onEdit, onStatusChange, onCancel, onVi
           )}
         </tbody>
       </Table>
-
-
-      
     </div>
   );
 };
