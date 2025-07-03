@@ -15,6 +15,7 @@ const ViewReservationModal = ({ show, onHide, reservation }) => {
     active,
     canceled,
     paid,
+    paymentDate, // Nueva propiedad para fecha de pago
     paymentCurrency = paymentMethod // Usamos paymentCurrency si existe, sino paymentMethod
   } = reservation;
 
@@ -126,6 +127,13 @@ const ViewReservationModal = ({ show, onHide, reservation }) => {
                   )}
                 </p>
               </div>
+              
+              {paid && paymentDate && (
+                <div className="mb-3">
+                  <label className="form-label">Fecha de Pago:</label>
+                  <p className="form-control-static">{paymentDate}</p>
+                </div>
+              )}
               
               <div className="mb-3">
                 <label className="form-label">Precio por Persona:</label>

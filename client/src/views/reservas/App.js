@@ -107,7 +107,8 @@ function App() {
     res.id === currentReservation.id ? { 
       ...res, 
       paid: true,
-      paymentCurrency: paymentData.currency // Guardamos la moneda usada
+      paymentCurrency: paymentData.currency,
+      paymentDate: paymentData.paymentDate
     } : res
     ));
     setShowPaymentModal(false);
