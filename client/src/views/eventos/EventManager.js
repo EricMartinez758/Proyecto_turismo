@@ -45,18 +45,21 @@ const EventManager = () => {
         
         // Mapear los eventos del backend al formato esperado por el frontend
         setEvents(eventsData.map(event => ({
-          id: event.id,
-          name: event.descripcion,
-          activityType: event.tipo_id, // Guardamos el ID para referencias
-          activityTypeName: event.tipo_nombre, // Usamos el nombre que viene del backend
-          startDate: `${event.fecha_actividad}T${event.hora_actividad}`,
-          endDate: event.fecha_fin ? `${event.fecha_fin}T${event.hora_fin}` : null,
-          maxClients: event.numero_total,
-          precioDolares: event.precio_persona,
-          active: event.estado === 'activo',
-          guides: [], // Se cargarán luego si es necesario
-          vehicles: [] // Se cargarán luego si es necesario
-        })));
+  id: event.id,
+  name: event.descripcion,
+  activityType: event.tipo_id,
+  activityTypeName: event.tipo_nombre,
+  // Asegúrate de formatear correctamente aquí:
+  fecha_actividad: event.fecha_actividad ? event.fecha_actividad.split('T')[0] : null,
+  hora_actividad: event.hora_actividad ? event.hora_actividad.substring(0, 8) : null,
+  fecha_fin: event.fecha_fin ? event.fecha_fin.split('T')[0] : null,
+  hora_fin: event.hora_fin ? event.hora_fin.substring(0, 8) : null,
+  maxClients: event.numero_total,
+  precioDolares: event.precio_persona,
+  active: event.estado === 'activo',
+  guides: [],
+  vehicles: []
+})));
       } catch (error) {
         console.error('Error al cargar datos:', error);
       }

@@ -10,17 +10,7 @@ const EventList = ({ events, onView, onEdit, onToggleStatus, onCreate }) => {
     }).format(value);
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    const options = { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    };
-    return new Date(dateString).toLocaleDateString('es-ES', options);
-  };
+
 
   // Función para obtener el nombre del tipo de actividad
   const getActivityTypeName = (typeId) => {
@@ -37,17 +27,17 @@ const EventList = ({ events, onView, onEdit, onToggleStatus, onCreate }) => {
      
       <table className="persona-table">
         <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Tipo</th>
-            <th>Fecha Inicio</th>
-            <th>Fecha Fin</th>
-            <th>Clientes Máx</th>
-            <th>Precio por persona</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
+  <tr>
+    <th>Nombre</th>
+    <th>Tipo</th>
+    <th>Fecha y hora inicio</th>
+    <th>Fecha y hora fin</th>
+    <th>Clientes Máx</th>
+    <th>Precio por persona</th>
+    <th>Estado</th>
+    <th>Acciones</th>
+  </tr>
+</thead>
         <tbody style={{color: '#000', backgroundColor: '#fff'}}>
           {events.length > 0 ? (
             events.map(event => (
@@ -58,8 +48,12 @@ const EventList = ({ events, onView, onEdit, onToggleStatus, onCreate }) => {
                     {event.activityTypeName || 'Sin tipo'}
                   </span>
                 </td>
-                <td>{formatDate(event.startDate)}</td>
-                <td>{formatDate(event.endDate)}</td>
+                <td>
+  {event.fecha_actividad || 'N/A'} | {event.hora_actividad?.substring(0, 5) || 'N/A'}
+</td>
+<td>
+  {event.fecha_fin ? `${event.fecha_fin} | ${event.hora_fin?.substring(0, 5)}` : 'N/A'}
+</td>
                 <td className="text-center">{event.maxClients}</td>
                 <td className="text-right" style={{ color: '#000' }}>
                   {formatCurrency(event.precioDolares || 0)}
