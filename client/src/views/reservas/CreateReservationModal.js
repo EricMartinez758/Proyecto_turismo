@@ -23,11 +23,9 @@ const CreateReservationModal = ({
 
     useEffect(() => {
         if (show) {
-            // Inicializar con valores vacíos para que el usuario seleccione explícitamente
-            // o el primer valor si las listas no están vacías
             const initialClientId = availableClients.length > 0 ? availableClients[0].id : '';
             const initialActivityId = availableActivities.length > 0 ? availableActivities[0].id : '';
-            const initialActivity = availableActivities.find(act => String(act.id) === String(initialActivityId)); // Asegúrate de comparar como strings
+            const initialActivity = availableActivities.find(act => String(act.id) === String(initialActivityId)); 
 
             setNewReservationData({
                 cliente_id: initialClientId,
@@ -39,14 +37,12 @@ const CreateReservationModal = ({
             });
             setCalculatedPrice(0);
             setErrorMessage('');
-            setSelectedActivity(initialActivity || null); // Establecer la actividad inicial si existe
+            setSelectedActivity(initialActivity || null);
         }
     }, [show, availableClients, availableActivities]);
 
-    // Efecto para recalcular el precio cuando la actividad, cantidad de personas o método de pago cambian
     useEffect(() => {
         if (selectedActivity && newReservationData.cantidad_personas > 0) {
-            // Asegúrate de que selectedActivity.price existe y tiene la moneda seleccionada
             const priceForCurrency = selectedActivity.price?.[newReservationData.metodo_pago] || 0;
             setCalculatedPrice(priceForCurrency * newReservationData.cantidad_personas);
         } else {
@@ -61,7 +57,7 @@ const CreateReservationModal = ({
 
         if (type === 'number') {
             newValue = parseInt(value, 10);
-            if (isNaN(newValue)) newValue = ''; // Manejar entrada vacía
+            if (isNaN(newValue)) newValue = '';
         } else if (type === 'checkbox') {
             newValue = checked;
         }
@@ -71,13 +67,9 @@ const CreateReservationModal = ({
             [name]: newValue
         }));
 
-        // Si la actividad cambia, actualiza selectedActivity
         if (name === 'actividad_id') {
-            // *** CORRECCIÓN CLAVE AQUÍ: No usar parseInt si los IDs son UUIDs (strings) ***
-            // Comparamos el valor del select (string) con el ID de la actividad (string)
             const activity = availableActivities.find(act => String(act.id) === String(newValue));
             setSelectedActivity(activity || null);
-            // Si la actividad cambia, resetea el método de pago a USD para que las opciones se actualicen
             setNewReservationData(prevData => ({
                 ...prevData,
                 metodo_pago: 'USD'
@@ -86,7 +78,6 @@ const CreateReservationModal = ({
     };
 
     const handleSubmit = () => {
-        // Validación mejorada
         if (!newReservationData.cliente_id || newReservationData.cliente_id === '') {
             setErrorMessage('Por favor, selecciona un cliente.');
             return;
@@ -108,10 +99,15 @@ const CreateReservationModal = ({
              return;
         }
 
+        // Preparar los datos para enviar al procedimiento almacenado
+        const dataToSend = {
+            ...newReservationData,
+            total_pago: calculatedPrice // Envía el precio calculado para el procedimiento
+        };
 
         if (onCreate) {
-            onCreate(newReservationData);
-            setErrorMessage(''); // Limpiar error en intento de envío exitoso
+            onCreate(dataToSend); // Envía todos los datos, incluyendo el total_pago
+            setErrorMessage('');
         }
     };
 
@@ -151,7 +147,6 @@ const CreateReservationModal = ({
                         <option value="">Selecciona una actividad</option>
                         {availableActivities.map(activity => (
                             <option key={activity.id} value={activity.id}>
-                                {/* Muestra el tipo y la descripción de la actividad */}
                                 {activity.type} - {activity.description}
                             </option>
                         ))}
@@ -188,12 +183,11 @@ const CreateReservationModal = ({
                         name="metodo_pago"
                         value={newReservationData.metodo_pago}
                         onChange={handleChange}
-                        disabled={!selectedActivity || !selectedActivity.price || Object.keys(selectedActivity.price).length === 0} // Deshabilita si no hay actividad o precios
+                        disabled={!selectedActivity || !selectedActivity.price || Object.keys(selectedActivity.price).length === 0}
                     >
                         {selectedActivity?.price && Object.keys(selectedActivity.price).map(currency => (
                             <option key={currency} value={currency}>{currency}</option>
                         ))}
-                        {/* Opción por defecto si no hay actividad seleccionada o precios */}
                         {(!selectedActivity || !selectedActivity.price || Object.keys(selectedActivity.price).length === 0) && (
                             <option value="">Selecciona actividad primero</option>
                         )}

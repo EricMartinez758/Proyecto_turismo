@@ -1,8 +1,12 @@
 // src/controllers/reservas.controller.js
+
 import { pool } from '../db.js';
 
 // --- FUNCIONES PARA OBTENER DATOS AUXILIARES ---
 
+/**
+ * Obtiene una lista de clientes disponibles con estado 'activo'.
+ */
 export const getAvailableClients = async (req, res) => {
     try {
         const result = await pool.query(`
@@ -14,10 +18,10 @@ export const getAvailableClients = async (req, res) => {
                 tmp.telefono
             FROM turttcli tc
             JOIN turtmper tmp ON tc.persona = tmp.id
-            WHERE tc.estado = 'Activo'
+            WHERE LOWER(tc.estado) = 'activo' -- Convertir a minúsculas para comparación insensible a mayúsculas/minúsculas
             ORDER BY tmp.primer_nombre, tmp.primer_apellido ASC
         `);
-        console.log('Backend (getAvailableClients): Raw clients data from DB:', result.rows); // Log de clientes
+        console.log('Backend (getAvailableClients): Raw clients data from DB:', result.rows);
         res.json(result.rows);
     } catch (error) {
         console.error('Error al obtener clientes disponibles:', error);
@@ -25,8 +29,13 @@ export const getAvailableClients = async (req, res) => {
     }
 };
 
+/**
+ * Obtiene una lista de actividades disponibles con sus precios calculados
+ * y estados 'activo', 'disponible' o 'planificado'.
+ */
 export const getAvailableActivities = async (req, res) => {
     try {
+        // Obtener la última tasa de cambio
         const ratesResult = await pool.query(`
             SELECT
                 tasa_usd_bs,
@@ -39,6 +48,7 @@ export const getAvailableActivities = async (req, res) => {
         `);
         const latestRates = ratesResult.rows[0] || { tasa_usd_bs: 0, tasa_usd_eur: 0, tasa_usd_cop: 0 };
 
+        // Obtener las actividades
         const activitiesResult = await pool.query(`
             SELECT
                 ta.id,
@@ -51,29 +61,30 @@ export const getAvailableActivities = async (req, res) => {
                 tmt.nombre AS tipo_actividad_nombre
             FROM turttact ta
             JOIN Turtmtac tmt ON ta.tipo_id = tmt.id
-            WHERE ta.estado = 'Activo'
+            WHERE LOWER(ta.estado) IN ('activo', 'disponible', 'planificado') -- Múltiples estados y comparación insensible a mayúsculas/minúsculas
             ORDER BY ta.descripcion ASC
         `);
-        console.log('Backend (getAvailableActivities): Raw activities data from DB:', activitiesResult.rows); // Log de actividades
+        console.log('Backend (getAvailableActivities): Raw activities data from DB:', activitiesResult.rows);
 
+        // Mapear resultados y calcular precios dinámicamente
         const activitiesWithPrices = activitiesResult.rows.map(activity => {
             const prices = {};
             prices['USD'] = activity.precio_persona; 
             prices['VES'] = activity.precio_persona * (latestRates.tasa_usd_bs || 0);
             prices['EUR'] = activity.precio_persona * (latestRates.tasa_usd_eur || 0);
-            prices['COP'] = activity.precio_persona * (latestRates.tasa_usd_cop || 0);
+            prices['COP'] = activity.precio_persona * (latestRates.tata_usd_cop || 0); // Corregido: tasa_usd_cop
 
             return {
                 id: activity.id,
                 type: activity.tipo_actividad_nombre,
                 description: activity.descripcion,
-                price: prices,
+                price: prices, // Objeto de precios completo
                 originalDate: activity.fecha_actividad,
                 originalTime: activity.hora_actividad,
                 status: activity.estado
             };
         });
-        console.log('Backend (getAvailableActivities): Mapped activities data to send to frontend:', activitiesWithPrices); // Log de actividades mapeadas
+        console.log('Backend (getAvailableActivities): Mapped activities data to send to frontend:', activitiesWithPrices);
 
         res.json(activitiesWithPrices);
     } catch (error) {
@@ -83,11 +94,12 @@ export const getAvailableActivities = async (req, res) => {
 };
 
 /**
- * Obtiene todas las reservas con detalles completos, incluyendo información de pago de Turttpag.
+ * Obtiene todas las reservas con detalles completos, incluyendo información de pago de Turttpag,
+ * utilizando un procedimiento almacenado.
  */
 export const getReservations = async (req, res) => {
     try {
-        // Obtener la última tasa de cambio de Turtmcmb
+        // Obtener la última tasa de cambio de Turtmcmb (esto sigue siendo necesario aquí si no lo mueves al SP)
         const ratesResult = await pool.query(`
             SELECT
                 tasa_usd_bs,
@@ -100,44 +112,12 @@ export const getReservations = async (req, res) => {
         `);
         const latestRates = ratesResult.rows[0] || { tasa_usd_bs: 0, tasa_usd_eur: 0, tasa_usd_cop: 0 };
 
-        // Obtener las reservas con todos los JOINs necesarios
-        const reservationsResult = await pool.query(`
-            SELECT
-                tr.id AS reservation_id,
-                tr.fecha AS reservation_date,
-                tr.estado AS reservation_status,
-                tr.cantidad_personas,
-                tr.usuario_id,
-                tu.correo AS user_email,
-                tr.cliente_id,
-                tmp.primer_nombre AS client_first_name,
-                tmp.primer_apellido AS client_last_name,
-                tmp.numero_documento AS client_id_number,
-                tmp.telefono AS client_phone,
-                tr.actividad_id,
-                ta.descripcion AS activity_description,
-                ta.precio_persona AS activity_price_per_person,
-                ta.fecha_actividad AS activity_original_date,
-                ta.hora_actividad AS activity_original_time,
-                ta.estado AS activity_status,
-                tmt.nombre AS activity_type_name,
-                tp.total_pago AS payment_total_paid,
-                tp.estado_pago AS payment_status,
-                tmtpg.nombre AS payment_method_name
-            FROM turttres tr
-            JOIN turttusu tu ON tr.usuario_id = tu.id
-            JOIN turttcli tc ON tr.cliente_id = tc.id
-            JOIN turtmper tmp ON tc.persona = tmp.id
-            JOIN turttact ta ON tr.actividad_id = ta.id
-            JOIN Turtmtac tmt ON ta.tipo_id = tmt.id
-            LEFT JOIN Turttpag tp ON tr.id = tp.reserva_id
-            LEFT JOIN Turtmtpg tmtpg ON tp.tipo_pago_id = tmtpg.id
-            ORDER BY tr.fecha DESC, tr.id DESC
-        `);
+        // Llama al procedimiento almacenado para obtener las reservas
+        const reservationsResult = await pool.query(`SELECT * FROM get_all_reservations_details()`);
 
-       
+        console.log('Backend: Raw reservations data from DB (from SP):', reservationsResult.rows);
 
-        // Mapear resultados y calcular precios dinámicamente
+        // El mapeo sigue siendo el mismo porque el SP devuelve los mismos alias de columna
         const reservationsWithPrices = reservationsResult.rows.map(res => {
             const prices = {};
             prices['USD'] = res.activity_price_per_person;
@@ -146,7 +126,7 @@ export const getReservations = async (req, res) => {
             prices['COP'] = res.activity_price_per_person * (latestRates.tasa_usd_cop || 0);
 
             return {
-                id: res.reservation_id, // <-- Asegúrate de que reservation_id no sea null/0 en la DB
+                id: res.reservation_id,
                 reservationCode: `RES-${String(res.reservation_id || '').padStart(3, '0')}`,
                 reservationDate: res.reservation_date,
                 activity: {
@@ -154,9 +134,9 @@ export const getReservations = async (req, res) => {
                     type: res.activity_type_name,
                     description: res.activity_description,
                     location: 'N/A',
-                    price: prices, // <-- Objeto de precios completo
+                    price: prices,
                     originalDate: res.activity_original_date,
-                    originalTime: res.activity_original_time, // <-- Corregido
+                    originalTime: res.activity_original_time,
                     status: res.activity_status
                 },
                 client: {
@@ -175,7 +155,7 @@ export const getReservations = async (req, res) => {
             };
         });
 
-        
+        console.log('Backend: Mapped reservations data to send to frontend:', reservationsWithPrices);
 
         res.json(reservationsWithPrices);
     } catch (error) {
@@ -184,6 +164,9 @@ export const getReservations = async (req, res) => {
     }
 };
 
+/**
+ * Crea una nueva reserva utilizando un procedimiento almacenado.
+ */
 export const createReservation = async (req, res) => {
     const { user: currentUser } = req;
     const usuario_id = currentUser ? currentUser.id : null;
@@ -194,6 +177,9 @@ export const createReservation = async (req, res) => {
         fecha,
         estado = 'pendiente',
         cantidad_personas,
+        pagado, // Recibe el estado de pagado desde el frontend
+        metodo_pago, // Recibe el método de pago desde el frontend
+        total_pago // Recibe el total_pago desde el frontend (calculado en el frontend)
     } = req.body;
 
     if (!usuario_id || !cliente_id || !actividad_id || !fecha || !cantidad_personas) {
@@ -201,21 +187,45 @@ export const createReservation = async (req, res) => {
     }
 
     try {
+        // Llama al procedimiento almacenado
         const result = await pool.query(
-            `INSERT INTO turttres (usuario_id, cliente_id, actividad_id, fecha, estado, cantidad_personas)
-            VALUES ($1, $2, $3, $4, $5, $6)
-            RETURNING id, usuario_id, cliente_id, actividad_id, fecha, estado, cantidad_personas`,
-            [usuario_id, cliente_id, actividad_id, fecha, estado, cantidad_personas]
+            `SELECT new_reservation_id, new_reservation_estado, new_cantidad_personas FROM create_new_reservation($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+            [
+                usuario_id,
+                cliente_id,
+                actividad_id,
+                fecha,
+                estado,
+                cantidad_personas,
+                pagado,        // Parámetro p_pagado
+                metodo_pago,   // Parámetro p_metodo_pago
+                total_pago     // Parámetro p_total_pago
+            ]
         );
 
-        const newReservation = result.rows[0];
-        res.status(201).json({ message: 'Reserva creada exitosamente.', reservation: newReservation });
+        const newReservationDetails = result.rows[0]; // El procedimiento devuelve una fila
+        if (newReservationDetails) {
+            res.status(201).json({
+                message: 'Reserva creada exitosamente mediante procedimiento almacenado.',
+                reservation: {
+                    id: newReservationDetails.new_reservation_id,
+                    estado: newReservationDetails.new_reservation_estado,
+                    cantidad_personas: newReservationDetails.new_cantidad_personas
+                    // Puedes añadir más campos si el procedimiento los devuelve
+                }
+            });
+        } else {
+            res.status(500).json({ message: 'Error al crear reserva: El procedimiento almacenado no devolvió datos.' });
+        }
     } catch (error) {
-        console.error('Error al crear reserva:', error);
+        console.error('Error al crear reserva con procedimiento almacenado:', error);
         res.status(500).json({ message: error.message || 'Error interno del servidor al crear reserva.' });
     }
 };
 
+/**
+ * Actualiza el estado de una reserva.
+ */
 export const updateReservationStatus = async (req, res) => {
     const { id } = req.params;
     const { estado } = req.body;
@@ -240,8 +250,11 @@ export const updateReservationStatus = async (req, res) => {
     }
 };
 
+/**
+ * Cancela una reserva cambiando su estado a 'cancelada'.
+ */
 export const cancelReservation = async (req, res) => {
-    const { id } = req.params;
+    const { id } = req.params; // Obtener el ID de la reserva de los parámetros de la ruta
 
     try {
         const result = await pool.query(
@@ -250,8 +263,11 @@ export const cancelReservation = async (req, res) => {
         );
 
         if (result.rows.length === 0) {
+            // Si no se encontró ninguna fila con ese ID, la reserva no existe
             return res.status(404).json({ message: 'Reserva no encontrada.' });
         }
+
+        // Si la actualización fue exitosa, devuelve la reserva actualizada
         res.json({ message: 'Reserva cancelada exitosamente.', reservation: result.rows[0] });
     } catch (error) {
         console.error('Error al cancelar reserva:', error);
@@ -259,6 +275,9 @@ export const cancelReservation = async (req, res) => {
     }
 };
 
+/**
+ * Actualiza los detalles de una reserva existente.
+ */
 export const updateReservation = async (req, res) => {
     const { id } = req.params;
     const { cliente_id, actividad_id, fecha, estado, cantidad_personas } = req.body;
@@ -290,9 +309,12 @@ export const updateReservation = async (req, res) => {
     }
 };
 
+/**
+ * Procesa un pago para una reserva utilizando un procedimiento almacenado.
+ */
 export const processPayment = async (req, res) => {
-    const { id } = req.params;
-    const { currency, amount, reference, paymentDate } = req.body;
+    const { id } = req.params; // ID de la reserva
+    const { currency, amount, reference, paymentDate } = req.body; // Datos del pago
 
     const { user: currentUser } = req;
     const usuario_id = currentUser ? currentUser.id : null;
@@ -308,35 +330,35 @@ export const processPayment = async (req, res) => {
     }
 
     try {
-        await pool.query('BEGIN');
-
-        let tipo_pago_id = null;
-        try {
-            const tipoPagoResult = await pool.query(`SELECT id FROM Turtmtpg WHERE nombre = $1`, [currency]);
-            tipo_pago_id = tipoPagoResult.rows[0]?.id;
-            if (!tipo_pago_id) {
-                tipo_pago_id = 1; 
-                console.warn(`Tipo de pago '${currency}' no encontrado en Turtmtpg. Usando ID por defecto: ${tipo_pago_id}`);
-            }
-        } catch (err) {
-            console.error('Error al buscar tipo de pago en Turtmtpg:', err);
-            tipo_pago_id = 1;
-        }
-
-        const insertPaymentResult = await pool.query(
-            `INSERT INTO Turttpag (usuario_id, reserva_id, tipo_pago_id, total_pago, estado_pago, fecha)
-             VALUES ($1, $2, $3, $4, $5, $6)
-             RETURNING *;`,
-            [usuario_id, id, tipo_pago_id, parseFloat(amount), 'completado', paymentDate]
+        // Llama al procedimiento almacenado para procesar el pago
+        const result = await pool.query(
+            `SELECT payment_id, payment_status, payment_total FROM process_reservation_payment($1, $2, $3, $4, $5, $6)`,
+            [
+                parseInt(id), // Asegúrate de que el ID de la reserva sea un entero si tu BD lo espera así
+                usuario_id,
+                currency,
+                parseFloat(amount),
+                reference,
+                paymentDate
+            ]
         );
 
-        await pool.query('COMMIT');
-
-        res.json({ message: 'Pago procesado y reserva marcada como pagada.', payment: insertPaymentResult.rows[0] });
+        const newPaymentDetails = result.rows[0];
+        if (newPaymentDetails) {
+            res.json({
+                message: 'Pago procesado exitosamente mediante procedimiento almacenado.',
+                payment: {
+                    id: newPaymentDetails.payment_id,
+                    estado_pago: newPaymentDetails.payment_status,
+                    total_pago: newPaymentDetails.payment_total
+                }
+            });
+        } else {
+            res.status(500).json({ message: 'Error al procesar pago: El procedimiento almacenado no devolvió datos.' });
+        }
 
     } catch (error) {
-        await pool.query('ROLLBACK');
-        console.error('Error al procesar pago:', error);
+        console.error('Error al procesar pago con procedimiento almacenado:', error);
         res.status(500).json({ message: error.message || 'Error interno del servidor al procesar pago.' });
     }
 };
