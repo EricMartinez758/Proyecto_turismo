@@ -3,11 +3,6 @@ import { pool } from '../db.js';
 
 // --- FUNCIONES PARA OBTENER DATOS AUXILIARES ---
 
-/**
- * Obtiene la lista de clientes disponibles (id, primer_nombre, primer_apellido, numero_documento, telefono)
- * Necesario para el modal de creación de reservas.
- * Las columnas coinciden con turtmper y turttcli.
- */
 export const getAvailableClients = async (req, res) => {
     try {
         const result = await pool.query(`
@@ -19,10 +14,10 @@ export const getAvailableClients = async (req, res) => {
                 tmp.telefono
             FROM turttcli tc
             JOIN turtmper tmp ON tc.persona = tmp.id
-            -- TEMPORALMENTE ELIMINAMOS EL FILTRO DE ESTADO PARA DEPURAR
-            -- WHERE tc.estado = 'activo'
+            WHERE tc.estado = 'Activo'
             ORDER BY tmp.primer_nombre, tmp.primer_apellido ASC
         `);
+        console.log('Backend (getAvailableClients): Raw clients data from DB:', result.rows); // Log de clientes
         res.json(result.rows);
     } catch (error) {
         console.error('Error al obtener clientes disponibles:', error);
@@ -30,50 +25,88 @@ export const getAvailableClients = async (req, res) => {
     }
 };
 
-
-
-
-// src/controllers/reservas.controller.js
-
 export const getAvailableActivities = async (req, res) => {
     try {
-        const result = await pool.query(`
+        const ratesResult = await pool.query(`
             SELECT
-                id,
-                descripcion,
-                tipo_id,        -- Incluimos tipo_id para ver su valor
-                precio_persona,
-                fecha_actividad,
-                hora_actividad,
-                estado
-            FROM turttact
-            -- TEMPORALMENTE ELIMINAMOS EL FILTRO DE ESTADO PARA DEPURAR
-            -- WHERE estado = 'activo'
-            -- TEMPORALMENTE ELIMINAMOS EL JOIN A Turtmtac PARA DEPURAR
-            -- JOIN Turtmtac tmt ON ta.tipo_id = tmt.id
-            ORDER BY descripcion ASC
+                tasa_usd_bs,
+                tasa_usd_eur,
+                tasa_usd_cop,
+                fecha
+            FROM Turtmcmb
+            ORDER BY fecha DESC
+            LIMIT 1;
         `);
-        res.json(result.rows);
+        const latestRates = ratesResult.rows[0] || { tasa_usd_bs: 0, tasa_usd_eur: 0, tasa_usd_cop: 0 };
+
+        const activitiesResult = await pool.query(`
+            SELECT
+                ta.id,
+                ta.descripcion,
+                ta.tipo_id,
+                ta.precio_persona,
+                ta.fecha_actividad,
+                ta.hora_actividad,
+                ta.estado,
+                tmt.nombre AS tipo_actividad_nombre
+            FROM turttact ta
+            JOIN Turtmtac tmt ON ta.tipo_id = tmt.id
+            WHERE ta.estado = 'Activo'
+            ORDER BY ta.descripcion ASC
+        `);
+        console.log('Backend (getAvailableActivities): Raw activities data from DB:', activitiesResult.rows); // Log de actividades
+
+        const activitiesWithPrices = activitiesResult.rows.map(activity => {
+            const prices = {};
+            prices['USD'] = activity.precio_persona; 
+            prices['VES'] = activity.precio_persona * (latestRates.tasa_usd_bs || 0);
+            prices['EUR'] = activity.precio_persona * (latestRates.tasa_usd_eur || 0);
+            prices['COP'] = activity.precio_persona * (latestRates.tasa_usd_cop || 0);
+
+            return {
+                id: activity.id,
+                type: activity.tipo_actividad_nombre,
+                description: activity.descripcion,
+                price: prices,
+                originalDate: activity.fecha_actividad,
+                originalTime: activity.hora_actividad,
+                status: activity.estado
+            };
+        });
+        console.log('Backend (getAvailableActivities): Mapped activities data to send to frontend:', activitiesWithPrices); // Log de actividades mapeadas
+
+        res.json(activitiesWithPrices);
     } catch (error) {
         console.error('Error al obtener actividades disponibles:', error);
         res.status(500).json({ message: 'Error interno del servidor al obtener actividades.' });
     }
 };
 
-// src/controllers/reservas.controller.js
-
+/**
+ * Obtiene todas las reservas con detalles completos, incluyendo información de pago de Turttpag.
+ */
 export const getReservations = async (req, res) => {
     try {
-        const result = await pool.query(`
+        // Obtener la última tasa de cambio de Turtmcmb
+        const ratesResult = await pool.query(`
+            SELECT
+                tasa_usd_bs,
+                tasa_usd_eur,
+                tasa_usd_cop,
+                fecha
+            FROM Turtmcmb
+            ORDER BY fecha DESC
+            LIMIT 1;
+        `);
+        const latestRates = ratesResult.rows[0] || { tasa_usd_bs: 0, tasa_usd_eur: 0, tasa_usd_cop: 0 };
+
+        // Obtener las reservas con todos los JOINs necesarios
+        const reservationsResult = await pool.query(`
             SELECT
                 tr.id AS reservation_id,
                 tr.fecha AS reservation_date,
                 tr.estado AS reservation_status,
-                -- Columnas de turttres que NO existen según tus imágenes.
-                -- Si las añades a turttres, descomenta aquí y en INSERT/UPDATE.
-                -- tr.cantidad_personas,
-                -- tr.metodo_pago,
-                -- tr.pagado,
+                tr.cantidad_personas,
                 tr.usuario_id,
                 tu.correo AS user_email,
                 tr.cliente_id,
@@ -82,67 +115,97 @@ export const getReservations = async (req, res) => {
                 tmp.numero_documento AS client_id_number,
                 tmp.telefono AS client_phone,
                 tr.actividad_id,
-                -- Columnas de turttact (usando alias 'ta'):
-                ta.descripcion AS activity_description,      -- Descripción de la actividad específica
-                ta.precio_persona AS activity_price_per_person, -- Precio por persona
-                ta.fecha_actividad AS activity_original_date, -- Fecha de la actividad original
-                ta.hora_actividad AS activity_original_time,  -- Hora de la actividad original
-                tmt.nombre AS activity_type_name             -- Nombre del tipo de actividad (ej. 'tour')
+                ta.descripcion AS activity_description,
+                ta.precio_persona AS activity_price_per_person,
+                ta.fecha_actividad AS activity_original_date,
+                ta.hora_actividad AS activity_original_time,
+                ta.estado AS activity_status,
+                tmt.nombre AS activity_type_name,
+                tp.total_pago AS payment_total_paid,
+                tp.estado_pago AS payment_status,
+                tmtpg.nombre AS payment_method_name
             FROM turttres tr
             JOIN turttusu tu ON tr.usuario_id = tu.id
             JOIN turttcli tc ON tr.cliente_id = tc.id
             JOIN turtmper tmp ON tc.persona = tmp.id
-            JOIN turttact ta ON tr.actividad_id = ta.id        -- Alias 'ta' para turttact
-            JOIN Turtmtac tmt ON ta.tipo_id = tmt.id           -- ¡Nuevo JOIN a Turtmtac!
-            ORDER BY tr.fecha DESC
+            JOIN turttact ta ON tr.actividad_id = ta.id
+            JOIN Turtmtac tmt ON ta.tipo_id = tmt.id
+            LEFT JOIN Turttpag tp ON tr.id = tp.reserva_id
+            LEFT JOIN Turtmtpg tmtpg ON tp.tipo_pago_id = tmtpg.id
+            ORDER BY tr.fecha DESC, tr.id DESC
         `);
-        res.json(result.rows);
+
+       
+
+        // Mapear resultados y calcular precios dinámicamente
+        const reservationsWithPrices = reservationsResult.rows.map(res => {
+            const prices = {};
+            prices['USD'] = res.activity_price_per_person;
+            prices['VES'] = res.activity_price_per_person * (latestRates.tasa_usd_bs || 0);
+            prices['EUR'] = res.activity_price_per_person * (latestRates.tasa_usd_eur || 0);
+            prices['COP'] = res.activity_price_per_person * (latestRates.tasa_usd_cop || 0);
+
+            return {
+                id: res.reservation_id, // <-- Asegúrate de que reservation_id no sea null/0 en la DB
+                reservationCode: `RES-${String(res.reservation_id || '').padStart(3, '0')}`,
+                reservationDate: res.reservation_date,
+                activity: {
+                    id: res.actividad_id,
+                    type: res.activity_type_name,
+                    description: res.activity_description,
+                    location: 'N/A',
+                    price: prices, // <-- Objeto de precios completo
+                    originalDate: res.activity_original_date,
+                    originalTime: res.activity_original_time, // <-- Corregido
+                    status: res.activity_status
+                },
+                client: {
+                    id: res.cliente_id,
+                    firstName: res.client_first_name,
+                    lastName: res.client_last_name,
+                    idNumber: res.client_id_number,
+                    phone: res.client_phone
+                },
+                groupMembers: [],
+                people: res.cantidad_personas || 1,
+                paymentMethod: res.payment_method_name || 'USD',
+                active: res.reservation_status === 'activa',
+                canceled: res.reservation_status === 'cancelada',
+                paid: res.payment_status === 'completado'
+            };
+        });
+
+        
+
+        res.json(reservationsWithPrices);
     } catch (error) {
         console.error('Error al obtener reservas:', error);
         res.status(500).json({ message: 'Error interno del servidor al obtener reservas.' });
     }
 };
 
-/**
- * Crea una nueva reserva.
- * REQUISITO: Este es un candidato IDEAL para un PROCESO ALMACENADO.
- * Las columnas insertadas coinciden con turttres.
- * NOTA: `cantidad_personas`, `metodo_pago`, `pagado` NO ESTÁN EN TURTTRES según tus imágenes.
- * Si las necesitas, debes añadirlas a la tabla turttres en tu BD.
- */
 export const createReservation = async (req, res) => {
-    // usuario_id debe venir del token/sesión, no del body para seguridad
-    const { user: currentUser } = req; // Asume que req.user es establecido por authRequired
-    const usuario_id = currentUser ? currentUser.id : null; // Obtener ID del usuario logueado
+    const { user: currentUser } = req;
+    const usuario_id = currentUser ? currentUser.id : null;
 
     const {
         cliente_id,
         actividad_id,
-        fecha, // Fecha de la reserva/actividad
-        estado = 'pendiente', // Estado por defecto
-        // Estas columnas NO están en turttres según tus imágenes.
-        // Si las añades a turttres, descomenta y úsalas en el INSERT.
-        // cantidad_personas,
-        // metodo_pago,
-        // pagado = false
+        fecha,
+        estado = 'pendiente',
+        cantidad_personas,
     } = req.body;
 
-    // Validaciones básicas
-    if (!usuario_id || !cliente_id || !actividad_id || !fecha) {
-        return res.status(400).json({ message: 'Faltan campos obligatorios para crear la reserva.' });
+    if (!usuario_id || !cliente_id || !actividad_id || !fecha || !cantidad_personas) {
+        return res.status(400).json({ message: 'Faltan campos obligatorios para crear la reserva (cliente_id, actividad_id, fecha, cantidad_personas).' });
     }
-    // Si añades cantidad_personas, metodo_pago, pagado a turttres, valida también aquí:
-    // if (!cantidad_personas || !metodo_pago || typeof pagado === 'undefined') { ... }
 
     try {
-        // Asegúrate de que las columnas en el INSERT coincidan con tu tabla turttres.
-        // Si añadiste 'cantidad_personas', 'metodo_pago', 'pagado' a turttres, inclúyelas aquí.
         const result = await pool.query(
-            `INSERT INTO turttres (usuario_id, cliente_id, actividad_id, fecha, estado)
-             VALUES ($1, $2, $3, $4, $5)
-             RETURNING id, usuario_id, cliente_id, actividad_id, fecha, estado`,
-            [usuario_id, cliente_id, actividad_id, fecha, estado]
-            // Si añadiste columnas: [usuario_id, cliente_id, actividad_id, fecha, estado, cantidad_personas, metodo_pago, pagado]
+            `INSERT INTO turttres (usuario_id, cliente_id, actividad_id, fecha, estado, cantidad_personas)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            RETURNING id, usuario_id, cliente_id, actividad_id, fecha, estado, cantidad_personas`,
+            [usuario_id, cliente_id, actividad_id, fecha, estado, cantidad_personas]
         );
 
         const newReservation = result.rows[0];
@@ -153,12 +216,9 @@ export const createReservation = async (req, res) => {
     }
 };
 
-/**
- * Actualiza el estado de una reserva (ej. activo/inactivo, o un estado específico).
- */
 export const updateReservationStatus = async (req, res) => {
     const { id } = req.params;
-    const { estado } = req.body; // Nuevo estado (ej. 'confirmada', 'cancelada', 'activa', 'inactiva')
+    const { estado } = req.body;
 
     if (!estado) {
         return res.status(400).json({ message: 'El nuevo estado es requerido.' });
@@ -180,9 +240,6 @@ export const updateReservationStatus = async (req, res) => {
     }
 };
 
-/**
- * Cancela una reserva (cambia su estado a 'cancelada').
- */
 export const cancelReservation = async (req, res) => {
     const { id } = req.params;
 
@@ -202,38 +259,25 @@ export const cancelReservation = async (req, res) => {
     }
 };
 
-/**
- * Actualiza los detalles de una reserva (para el modal de edición).
- * NOTA: `cantidad_personas`, `metodo_pago`, `pagado` NO ESTÁN EN TURTTRES según tus imágenes.
- * Si las necesitas, debes añadirlas a la tabla turttres en tu BD.
- */
 export const updateReservation = async (req, res) => {
     const { id } = req.params;
-    const { cliente_id, actividad_id, fecha, estado, /*cantidad_personas, metodo_pago, pagado*/ } = req.body;
+    const { cliente_id, actividad_id, fecha, estado, cantidad_personas } = req.body;
 
-    // Validaciones básicas (ajusta si añades más columnas a turttres)
-    if (!cliente_id || !actividad_id || !fecha || !estado) {
-        return res.status(400).json({ message: 'Faltan campos obligatorios para actualizar la reserva.' });
+    if (!cliente_id || !actividad_id || !fecha || !estado || !cantidad_personas) {
+        return res.status(400).json({ message: 'Faltan campos obligatorios para actualizar la reserva (cliente_id, actividad_id, fecha, estado, cantidad_personas).' });
     }
-    // Si añades cantidad_personas, metodo_pago, pagado a turttres, valida también aquí:
-    // if (!cantidad_personas || typeof metodo_pago === 'undefined' || typeof pagado === 'undefined') { ... }
 
     try {
-        // Asegúrate de que las columnas en el UPDATE coincidan con tu tabla turttres.
-        // Si añadiste 'cantidad_personas', 'metodo_pago', 'pagado' a turttres, inclúyelas aquí.
         const result = await pool.query(
             `UPDATE turttres SET
                 cliente_id = $1,
                 actividad_id = $2,
                 fecha = $3,
-                estado = $4
-                -- cantidad_personas = $5, -- Descomentar si añades esta columna
-                -- metodo_pago = $6,       -- Descomentar si añades esta columna
-                -- pagado = $7             -- Descomentar si añades esta columna
-             WHERE id = $5 -- Ajusta el índice del parámetro si añades columnas arriba
-             RETURNING id, cliente_id, actividad_id, fecha, estado`,
-            [cliente_id, actividad_id, fecha, estado, id]
-            // Si añades columnas: [cliente_id, actividad_id, fecha, estado, cantidad_personas, metodo_pago, pagado, id]
+                estado = $4,
+                cantidad_personas = $5
+             WHERE id = $6
+             RETURNING id, cliente_id, actividad_id, fecha, estado, cantidad_personas`,
+            [cliente_id, actividad_id, fecha, estado, cantidad_personas, id]
         );
 
         if (result.rows.length === 0) {
@@ -243,5 +287,56 @@ export const updateReservation = async (req, res) => {
     } catch (error) {
         console.error('Error al actualizar reserva:', error);
         res.status(500).json({ message: error.message || 'Error interno del servidor al actualizar reserva.' });
+    }
+};
+
+export const processPayment = async (req, res) => {
+    const { id } = req.params;
+    const { currency, amount, reference, paymentDate } = req.body;
+
+    const { user: currentUser } = req;
+    const usuario_id = currentUser ? currentUser.id : null;
+
+    if (!usuario_id) {
+        return res.status(401).json({ message: 'Usuario no autenticado para procesar el pago.' });
+    }
+    if (!currency || !amount || !reference || !paymentDate) {
+        return res.status(400).json({ message: 'Faltan campos obligatorios para el pago: moneda, monto, referencia, fecha.' });
+    }
+    if (isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
+        return res.status(400).json({ message: 'El monto del pago debe ser un número positivo.' });
+    }
+
+    try {
+        await pool.query('BEGIN');
+
+        let tipo_pago_id = null;
+        try {
+            const tipoPagoResult = await pool.query(`SELECT id FROM Turtmtpg WHERE nombre = $1`, [currency]);
+            tipo_pago_id = tipoPagoResult.rows[0]?.id;
+            if (!tipo_pago_id) {
+                tipo_pago_id = 1; 
+                console.warn(`Tipo de pago '${currency}' no encontrado en Turtmtpg. Usando ID por defecto: ${tipo_pago_id}`);
+            }
+        } catch (err) {
+            console.error('Error al buscar tipo de pago en Turtmtpg:', err);
+            tipo_pago_id = 1;
+        }
+
+        const insertPaymentResult = await pool.query(
+            `INSERT INTO Turttpag (usuario_id, reserva_id, tipo_pago_id, total_pago, estado_pago, fecha)
+             VALUES ($1, $2, $3, $4, $5, $6)
+             RETURNING *;`,
+            [usuario_id, id, tipo_pago_id, parseFloat(amount), 'completado', paymentDate]
+        );
+
+        await pool.query('COMMIT');
+
+        res.json({ message: 'Pago procesado y reserva marcada como pagada.', payment: insertPaymentResult.rows[0] });
+
+    } catch (error) {
+        await pool.query('ROLLBACK');
+        console.error('Error al procesar pago:', error);
+        res.status(500).json({ message: error.message || 'Error interno del servidor al procesar pago.' });
     }
 };

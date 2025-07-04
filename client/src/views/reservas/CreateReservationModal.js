@@ -7,44 +7,43 @@ import {
 } from '@coreui/react';
 
 const CreateReservationModal = ({
-    show, onHide, onCreate, availableClients, availableActivities // <-- Recibe availableActivities
+    show, onHide, onCreate, availableClients, availableActivities
 }) => {
     const [newReservationData, setNewReservationData] = useState({
         cliente_id: '',
         actividad_id: '',
         fecha: '',
         cantidad_personas: 1,
-        metodo_pago: 'USD', // Método de pago por defecto
-        pagado: false // Por defecto no pagado
+        metodo_pago: 'USD',
+        pagado: false
     });
-    const [calculatedPrice, setCalculatedPrice] = useState(0); // Para mostrar el precio calculado
-    const [selectedActivity, setSelectedActivity] = useState(null); // Para guardar la actividad seleccionada
+    const [calculatedPrice, setCalculatedPrice] = useState(0);
+    const [selectedActivity, setSelectedActivity] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
         if (show) {
+            // Inicializar con valores vacíos para que el usuario seleccione explícitamente
+            // o el primer valor si las listas no están vacías
+            const initialClientId = availableClients.length > 0 ? availableClients[0].id : '';
+            const initialActivityId = availableActivities.length > 0 ? availableActivities[0].id : '';
+            const initialActivity = availableActivities.find(act => String(act.id) === String(initialActivityId)); // Asegúrate de comparar como strings
+
             setNewReservationData({
-                cliente_id: availableClients.length > 0 ? availableClients[0].id : '',
-                actividad_id: availableActivities.length > 0 ? availableActivities[0].id : '',
-                fecha: new Date().toISOString().slice(0, 10), // Por defecto la fecha actual
+                cliente_id: initialClientId,
+                actividad_id: initialActivityId,
+                fecha: new Date().toISOString().slice(0, 10),
                 cantidad_personas: 1,
                 metodo_pago: 'USD',
                 pagado: false
             });
             setCalculatedPrice(0);
             setErrorMessage('');
-            // Resetear la actividad seleccionada y establecer una por defecto si hay actividades
-            if (availableActivities.length > 0) {
-                const defaultActivityId = availableActivities[0].id;
-                const defaultActivity = availableActivities.find(act => act.id === defaultActivityId);
-                setSelectedActivity(defaultActivity || null);
-            } else {
-                setSelectedActivity(null);
-            }
+            setSelectedActivity(initialActivity || null); // Establecer la actividad inicial si existe
         }
     }, [show, availableClients, availableActivities]);
 
-    // Efecto para recalcular el precio cuando la actividad o la cantidad de personas cambian
+    // Efecto para recalcular el precio cuando la actividad, cantidad de personas o método de pago cambian
     useEffect(() => {
         if (selectedActivity && newReservationData.cantidad_personas > 0) {
             // Asegúrate de que selectedActivity.price existe y tiene la moneda seleccionada
@@ -74,18 +73,42 @@ const CreateReservationModal = ({
 
         // Si la actividad cambia, actualiza selectedActivity
         if (name === 'actividad_id') {
-            const actId = parseInt(newValue, 10); // Asegúrate de que sea un entero para la comparación
-            const activity = availableActivities.find(act => act.id === actId);
+            // *** CORRECCIÓN CLAVE AQUÍ: No usar parseInt si los IDs son UUIDs (strings) ***
+            // Comparamos el valor del select (string) con el ID de la actividad (string)
+            const activity = availableActivities.find(act => String(act.id) === String(newValue));
             setSelectedActivity(activity || null);
+            // Si la actividad cambia, resetea el método de pago a USD para que las opciones se actualicen
+            setNewReservationData(prevData => ({
+                ...prevData,
+                metodo_pago: 'USD'
+            }));
         }
     };
 
     const handleSubmit = () => {
-        // Validación básica
-        if (!newReservationData.cliente_id || !newReservationData.actividad_id || !newReservationData.fecha || newReservationData.cantidad_personas <= 0) {
-            setErrorMessage('Por favor, completa todos los campos obligatorios.');
+        // Validación mejorada
+        if (!newReservationData.cliente_id || newReservationData.cliente_id === '') {
+            setErrorMessage('Por favor, selecciona un cliente.');
             return;
         }
+        if (!newReservationData.actividad_id || newReservationData.actividad_id === '') {
+            setErrorMessage('Por favor, selecciona una actividad.');
+            return;
+        }
+        if (!newReservationData.fecha) {
+            setErrorMessage('Por favor, selecciona una fecha.');
+            return;
+        }
+        if (newReservationData.cantidad_personas <= 0 || isNaN(newReservationData.cantidad_personas)) {
+            setErrorMessage('La cantidad de personas debe ser un número mayor a 0.');
+            return;
+        }
+        if (!selectedActivity) {
+             setErrorMessage('No se pudo determinar la actividad seleccionada. Por favor, selecciona una actividad válida.');
+             return;
+        }
+
+
         if (onCreate) {
             onCreate(newReservationData);
             setErrorMessage(''); // Limpiar error en intento de envío exitoso
@@ -129,7 +152,7 @@ const CreateReservationModal = ({
                         {availableActivities.map(activity => (
                             <option key={activity.id} value={activity.id}>
                                 {/* Muestra el tipo y la descripción de la actividad */}
-                                {activity.type} - {activity.description} 
+                                {activity.type} - {activity.description}
                             </option>
                         ))}
                     </CFormSelect>
@@ -165,11 +188,15 @@ const CreateReservationModal = ({
                         name="metodo_pago"
                         value={newReservationData.metodo_pago}
                         onChange={handleChange}
+                        disabled={!selectedActivity || !selectedActivity.price || Object.keys(selectedActivity.price).length === 0} // Deshabilita si no hay actividad o precios
                     >
-                        {/* Asegúrate de que las monedas disponibles coincidan con las de tu actividad.price */}
                         {selectedActivity?.price && Object.keys(selectedActivity.price).map(currency => (
                             <option key={currency} value={currency}>{currency}</option>
                         ))}
+                        {/* Opción por defecto si no hay actividad seleccionada o precios */}
+                        {(!selectedActivity || !selectedActivity.price || Object.keys(selectedActivity.price).length === 0) && (
+                            <option value="">Selecciona actividad primero</option>
+                        )}
                     </CFormSelect>
                 </div>
 
