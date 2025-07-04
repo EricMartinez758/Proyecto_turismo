@@ -1,9 +1,30 @@
 import React from 'react';
 
 const EventList = ({ events, onView, onEdit, onToggleStatus, onCreate }) => {
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(value);
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const options = { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    };
+    return new Date(dateString).toLocaleDateString('es-ES', options);
+  };
+
   return (
     <div className="event-list">
-      <button onClick={onCreate} className="btn-persona-primary mb-3" >
+      <button onClick={onCreate} className="btn-persona-primary mb-3">
         Crear Nuevo Evento
       </button>
      
@@ -15,19 +36,28 @@ const EventList = ({ events, onView, onEdit, onToggleStatus, onCreate }) => {
             <th>Fecha Inicio</th>
             <th>Fecha Fin</th>
             <th>Clientes Máx</th>
+            <th>Precio por persona</th>
             <th>Estado</th>
             <th>Acciones</th>
           </tr>
         </thead>
-        <tbody style={{color: '#000',backgroundColor: '#fff'}}>
+        <tbody style={{color: '#000', backgroundColor: '#fff'}}>
           {events.length > 0 ? (
             events.map(event => (
               <tr key={event.id}>
                 <td>{event.name}</td>
-                <td>{event.activityType}</td>
-                <td>{event.startDate}</td>
-                <td>{event.endDate}</td>
-                <td>{event.maxClients}</td>
+                <td>
+                  <span className="badge badge-type">
+                    {event.activityType === 'maraton' ? 'Maratón' : 
+                     event.activityType === 'tour' ? 'Tour' : 'Caminata'}
+                  </span>
+                </td>
+                <td>{formatDate(event.startDate)}</td>
+                <td>{formatDate(event.endDate)}</td>
+                <td className="text-center">{event.maxClients}</td>
+                <td className="text-right" style={{ color: '#000' }}> {/* Texto en negro */}
+                  {formatCurrency(event.precioDolares || 0)}
+                </td>
                 <td>
                   <span className={event.active ? 'badge-active' : 'badge-inactive'}>
                     {event.active ? 'Activo' : 'Inactivo'}
@@ -51,7 +81,7 @@ const EventList = ({ events, onView, onEdit, onToggleStatus, onCreate }) => {
             ))
           ) : (
             <tr>
-              <td colSpan="7" className="text-center">No hay eventos registrados</td>
+              <td colSpan="8" className="text-center">No hay eventos registrados</td>
             </tr>
           )}
         </tbody>

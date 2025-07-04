@@ -1,9 +1,9 @@
 import pg from 'pg';
 
 export const pool = new pg.Pool({
-  user: 'angela',
+  user: 'postgres',
   host: 'localhost',
-  password: 'eric758999',
+  password: 'contrasena',
   database: 'Sisbdtur',
   port: 5432,
 });

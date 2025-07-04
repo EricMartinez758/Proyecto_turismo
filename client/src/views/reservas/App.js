@@ -1,27 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '../../assets/css/reservas.css'
+import '../../assets/css/reservas.css';
 import ReservationTable from './ReservationTable';
 import CreateReservationModal from './CreateReservationModal';
 import StatusReservationModal from './StatusReservationModal';
 import CancelReservationModal from './CancelReservationModal';
 import EditReservationModal from './EditReservationModal';
 import ViewReservationModal from './ViewReservationModal';
+import PaymentModal from './PaymentModal';
 
 function App() {
   const [reservations, setReservations] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
-  const [showCancelModal, setShowCancelModal] = useState(false)
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
-const [currentReservation, setCurrentReservation] = useState(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [currentReservation, setCurrentReservation] = useState(null);
 
-const openViewModal = (reservation) => {
-  setCurrentReservation(reservation);
-  setShowViewModal(true);
-};
+  const openViewModal = (reservation) => {
+    setCurrentReservation(reservation);
+    setShowViewModal(true);
+  };
 
+  const openPaymentModal = (reservation) => {
+    setCurrentReservation(reservation);
+    setShowPaymentModal(true);
+  };
 
   const [availableClients] = useState([
     { idNumber: '12345678', firstName: 'Juan', lastName: 'Pérez', phone: '04121234567' },
@@ -31,9 +37,9 @@ const openViewModal = (reservation) => {
   ]);
 
   const activityPrices = {
-    tour: { USD: 60, VES: 50 * 36.5 },
-    'plan vacional': { USD: 200, VES: 200 * 36.5 },
-    maraton: { USD: 30, VES: 30 * 36.5 }
+    tour: { USD: 60, VES: 50 * 36.5, EUR: 55, MXN: 1100, RUB: 4500 },
+    'plan vacional': { USD: 200, VES: 200 * 36.5, EUR: 180, MXN: 3600, RUB: 15000 },
+    maraton: { USD: 30, VES: 30 * 36.5, EUR: 28, MXN: 550, RUB: 2200 }
   };
 
   useEffect(() => {
@@ -57,6 +63,7 @@ const openViewModal = (reservation) => {
         paymentMethod: 'USD',
         active: true,
         canceled: false,
+        paid: false, // Estado inicial de pago
         people: 1
       }
     ];
@@ -68,6 +75,7 @@ const openViewModal = (reservation) => {
     newReservation.id = nextId;
     newReservation.reservationCode = `RES-${String(nextId).padStart(3, '0')}`;
     newReservation.canceled = false;
+    newReservation.paid = false; // Por defecto no pagado
     setReservations([...reservations, newReservation]);
     setShowCreateModal(false);
   };
@@ -91,6 +99,19 @@ const openViewModal = (reservation) => {
       res.id === id ? { ...res, canceled: true } : res
     ));
     setShowCancelModal(false);
+  };
+
+  const handlePayment = (paymentData) => {
+  console.log('Pago registrado:', paymentData);
+  setReservations(reservations.map(res =>
+    res.id === currentReservation.id ? { 
+      ...res, 
+      paid: true,
+      paymentCurrency: paymentData.currency,
+      paymentDate: paymentData.paymentDate
+    } : res
+    ));
+    setShowPaymentModal(false);
   };
 
   const openEditModal = (reservation) => {
@@ -124,7 +145,8 @@ const openViewModal = (reservation) => {
         onEdit={openEditModal}
         onStatusChange={openStatusModal}
         onCancel={openCancelModal}
-        onView={openViewModal}  
+        onView={openViewModal}
+        onPay={openPaymentModal}
       />
       <CreateReservationModal
         show={showCreateModal}
@@ -134,11 +156,10 @@ const openViewModal = (reservation) => {
         availableClients={availableClients}
       />
       <ViewReservationModal
-  show={showViewModal}
-  onHide={() => setShowViewModal(false)}
-  reservation={currentReservation}
-/>
-
+        show={showViewModal}
+        onHide={() => setShowViewModal(false)}
+        reservation={currentReservation}
+      />
       <EditReservationModal
         show={showEditModal}
         onHide={() => setShowEditModal(false)}
@@ -156,6 +177,12 @@ const openViewModal = (reservation) => {
         show={showCancelModal}
         onHide={() => setShowCancelModal(false)}
         onConfirm={handleCancel}
+        reservation={currentReservation}
+      />
+      <PaymentModal
+        show={showPaymentModal}
+        onHide={() => setShowPaymentModal(false)}
+        onPaymentSubmit={handlePayment}
         reservation={currentReservation}
       />
     </div>

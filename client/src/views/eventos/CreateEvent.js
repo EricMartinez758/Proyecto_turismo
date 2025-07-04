@@ -8,7 +8,8 @@ const CreateEvent = ({ guides, vehicles, onCreate, onCancel }) => {
     endDate: '',
     guides: [],
     maxClients: 0,
-    vehicles: []
+    vehicles: [],
+    precioDolares: 0 // Nuevo campo agregado
   });
 
   const handleChange = (e) => {
@@ -52,7 +53,10 @@ const CreateEvent = ({ guides, vehicles, onCreate, onCancel }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onCreate(formData);
+    onCreate({
+      ...formData,
+      precioDolares: parseFloat(formData.precioDolares) // Asegurar que es número
+    });
   };
 
   return (
@@ -84,6 +88,29 @@ const CreateEvent = ({ guides, vehicles, onCreate, onCancel }) => {
               <option value="tour">Tour</option>
               <option value="caminata">Caminata</option>
             </select>
+          </div>
+
+          {/* Nuevo campo: Precio en dólares */}
+          <div className="form-group">
+            <label className="form-label">Precio en dólares por persona:</label>
+            <div className="input-group">
+              <div className="input-group-prepend">
+                <span className="input-group-text">$</span>
+              </div>
+              <input
+                type="number"
+                name="precioDolares"
+                value={formData.precioDolares}
+                onChange={handleChange}
+                className="form-control"
+                min="0"
+                step="0.01"
+                required
+              />
+              <div className="input-group-append">
+                <span className="input-group-text">USD</span>
+              </div>
+            </div>
           </div>
          
           <div className="form-group">

@@ -189,31 +189,6 @@ const Login = () => {
                   </CForm>
                 </CCardBody>
               </CCard>
-
-              <CCard className="custom-primary-card">
-                <CCardBody className="text-center py-5">
-                  <div>
-                    <h2 className="custom-register-title">¡Bienvenido aventurero!</h2>
-                    <p className="custom-register-text">
-                      Regístrate para crear una cuenta y comenzar a utilizar todos nuestros servicios.
-                    </p>
-                    <CButton
-                      color="light"
-                      className="custom-register-btn"
-                      active
-                      tabIndex={-1}
-                      onClick={handleRegisterRedirect}
-                      disabled={registerLoading}
-                    >
-                      {registerLoading ? (
-                        <CSpinner size="sm" className="custom-spinner" />
-                      ) : (
-                        'Crear Cuenta'
-                      )}
-                    </CButton>
-                  </div>
-                </CCardBody>
-              </CCard>
             </CCardGroup>
           </CCol>
         </CRow>
