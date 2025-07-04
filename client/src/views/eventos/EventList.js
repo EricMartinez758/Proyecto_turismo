@@ -1,6 +1,6 @@
 import React from 'react';
 
-const EventList = ({ events, onView, onEdit, onToggleStatus, onCreate, activityTypes }) => {
+const EventList = ({ events, onView, onEdit, onToggleStatus, onCreate }) => {
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -54,8 +54,8 @@ const EventList = ({ events, onView, onEdit, onToggleStatus, onCreate, activityT
               <tr key={event.id}>
                 <td>{event.name}</td>
                 <td>
-                  <span className="badge badge-type">
-                    {getActivityTypeName(event.activityType)}
+                  <span className="badge-guia">
+                    {event.activityTypeName || 'Sin tipo'}
                   </span>
                 </td>
                 <td>{formatDate(event.startDate)}</td>

@@ -47,7 +47,8 @@ const EventManager = () => {
         setEvents(eventsData.map(event => ({
           id: event.id,
           name: event.descripcion,
-          activityType: activityTypes.find(t => t.id === event.tipo_id)?.nombre.toLowerCase() || '',
+          activityType: event.tipo_id, // Guardamos el ID para referencias
+          activityTypeName: event.tipo_nombre, // Usamos el nombre que viene del backend
           startDate: `${event.fecha_actividad}T${event.hora_actividad}`,
           endDate: event.fecha_fin ? `${event.fecha_fin}T${event.hora_fin}` : null,
           maxClients: event.numero_total,
