@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 
-const CreateEvent = ({ guides, vehicles, onCreate, onCancel }) => {
+const CreateEvent = ({ guides, drivers, activityTypes, onCreate, onCancel }) => {
   const [formData, setFormData] = useState({
     name: '',
-    activityType: 'maraton',
-    startDate: '',
-    endDate: '',
+    activityType: activityTypes.length > 0 ? activityTypes[0].id : '',
+    fechaInicio: '',
+    horaInicio: '08:00',
+    fechaFin: '',
+    horaFin: '18:00',
     guides: [],
-    maxClients: 0,
+    maxClients: 1,
     vehicles: [],
-    precioDolares: 0 // Nuevo campo agregado
+    precioDolares: 10.00
   });
 
   const handleChange = (e) => {
@@ -18,7 +20,7 @@ const CreateEvent = ({ guides, vehicles, onCreate, onCancel }) => {
   };
 
   const handleGuideSelect = (e) => {
-    const guideId = parseInt(e.target.value);
+    const guideId = e.target.value;
     const selectedGuide = guides.find(g => g.id === guideId);
    
     if (selectedGuide && formData.guides.length < 2) {
@@ -29,14 +31,14 @@ const CreateEvent = ({ guides, vehicles, onCreate, onCancel }) => {
     }
   };
 
-  const handleVehicleSelect = (e) => {
-    const placa = e.target.value;
-    const selectedVehicle = vehicles.find(v => v.placa === placa);
+  const handleDriverSelect = (e) => {
+    const driverId = e.target.value;
+    const selectedDriver = drivers.find(d => d.id === driverId);
    
-    if (selectedVehicle) {
+    if (selectedDriver) {
       setFormData({
         ...formData,
-        vehicles: [...formData.vehicles, selectedVehicle]
+        vehicles: [...formData.vehicles, selectedDriver]
       });
     }
   };
@@ -53,10 +55,48 @@ const CreateEvent = ({ guides, vehicles, onCreate, onCancel }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onCreate({
+    
+    // Validaciones
+    if (!formData.name.trim()) {
+      alert('El nombre del evento es requerido');
+      return;
+    }
+    
+    if (!formData.fechaInicio) {
+      alert('La fecha de inicio es requerida');
+      return;
+    }
+
+    if (!formData.horaInicio) {
+      alert('La hora de inicio es requerida');
+      return;
+    }
+
+    if (formData.fechaFin && !formData.horaFin) {
+      alert('Si especifica fecha final, debe indicar hora final');
+      return;
+    }
+
+    if (formData.maxClients < 1) {
+      alert('Debe haber al menos 1 cliente');
+      return;
+    }
+
+    if (formData.precioDolares <= 0) {
+      alert('El precio debe ser mayor que 0');
+      return;
+    }
+
+    // Preparar datos para enviar
+    const eventToCreate = {
       ...formData,
-      precioDolares: parseFloat(formData.precioDolares) // Asegurar que es número
-    });
+      startDate: `${formData.fechaInicio}T${formData.horaInicio}:00`,
+      endDate: formData.fechaFin ? `${formData.fechaFin}T${formData.horaFin}:00` : null,
+      precioDolares: parseFloat(formData.precioDolares),
+      maxClients: parseInt(formData.maxClients)
+    };
+
+    onCreate(eventToCreate);
   };
 
   return (
@@ -74,7 +114,7 @@ const CreateEvent = ({ guides, vehicles, onCreate, onCancel }) => {
               required
             />
           </div>
-         
+          
           <div className="form-group">
             <label className="form-label">Tipo de Actividad:</label>
             <select
@@ -84,13 +124,14 @@ const CreateEvent = ({ guides, vehicles, onCreate, onCancel }) => {
               className="form-control"
               required
             >
-              <option value="maraton">Maratón</option>
-              <option value="tour">Tour</option>
-              <option value="caminata">Caminata</option>
+              {activityTypes.map(type => (
+                <option key={type.id} value={type.id}>
+                  {type.nombre}
+                </option>
+              ))}
             </select>
           </div>
 
-          {/* Nuevo campo: Precio en dólares */}
           <div className="form-group">
             <label className="form-label">Precio en dólares por persona:</label>
             <div className="input-group">
@@ -112,31 +153,56 @@ const CreateEvent = ({ guides, vehicles, onCreate, onCancel }) => {
               </div>
             </div>
           </div>
-         
-          <div className="form-group">
-            <label className="form-label">Fecha de Inicio:</label>
-            <input
-              type="datetime-local"
-              name="startDate"
-              value={formData.startDate}
-              onChange={handleChange}
-              className="form-control"
-              required
-            />
+          
+          <div className="form-row">
+            <div className="form-group col-md-6">
+              <label className="form-label">Fecha de Inicio:</label>
+              <input
+                type="date"
+                name="fechaInicio"
+                value={formData.fechaInicio}
+                onChange={handleChange}
+                className="form-control"
+                required
+              />
+            </div>
+            <div className="form-group col-md-6">
+              <label className="form-label">Hora de Inicio:</label>
+              <input
+                type="time"
+                name="horaInicio"
+                value={formData.horaInicio}
+                onChange={handleChange}
+                className="form-control"
+                required
+              />
+            </div>
           </div>
-         
-          <div className="form-group">
-            <label className="form-label">Fecha de Finalización:</label>
-            <input
-              type="datetime-local"
-              name="endDate"
-              value={formData.endDate}
-              onChange={handleChange}
-              className="form-control"
-              required
-            />
+          
+          <div className="form-row">
+            <div className="form-group col-md-6">
+              <label className="form-label">Fecha de Finalización:</label>
+              <input
+                type="date"
+                name="fechaFin"
+                value={formData.fechaFin}
+                onChange={handleChange}
+                className="form-control"
+              />
+            </div>
+            <div className="form-group col-md-6">
+              <label className="form-label">Hora de Finalización:</label>
+              <input
+                type="time"
+                name="horaFin"
+                value={formData.horaFin}
+                onChange={handleChange}
+                className="form-control"
+                disabled={!formData.fechaFin}
+              />
+            </div>
           </div>
-         
+          
           <div className="form-group">
             <label className="form-label">Número Máximo de Clientes:</label>
             <input
@@ -149,7 +215,7 @@ const CreateEvent = ({ guides, vehicles, onCreate, onCancel }) => {
               required
             />
           </div>
-         
+          
           <div className="form-group">
             <label className="form-label">Guías a Cargo (Máx 2):</label>
             <select
@@ -180,17 +246,17 @@ const CreateEvent = ({ guides, vehicles, onCreate, onCancel }) => {
               ))}
             </div>
           </div>
-         
+          
           <div className="form-group">
-            <label className="form-label">Vehículos Asignados:</label>
+            <label className="form-label">Conductores Asignados:</label>
             <select
-              onChange={handleVehicleSelect}
+              onChange={handleDriverSelect}
               className="form-control"
             >
-              <option value="">Seleccione un vehículo</option>
-              {vehicles.map(vehicle => (
-                <option key={vehicle.placa} value={vehicle.placa}>
-                  {vehicle.placa} - {vehicle.conductor} ({vehicle.cedula})
+              <option value="">Seleccione un conductor</option>
+              {drivers.map(driver => (
+                <option key={driver.id} value={driver.id}>
+                  {driver.nombre} ({driver.cedula})
                 </option>
               ))}
             </select>
@@ -198,7 +264,7 @@ const CreateEvent = ({ guides, vehicles, onCreate, onCancel }) => {
             <div className="selected-vehicles mt-2">
               {formData.vehicles.map((vehicle, index) => (
                 <div key={index} className="badge badge-secondary-persona mr-2 p-2" style={{color: '#fff', backgroundColor: '#0b4817b7'}}>
-                  {vehicle.placa} - {vehicle.conductor}
+                  {vehicle.nombre} ({vehicle.cedula})
                   <button
                     type="button"
                     className="closing ml-2"
@@ -210,7 +276,7 @@ const CreateEvent = ({ guides, vehicles, onCreate, onCancel }) => {
               ))}
             </div>
           </div>
-         
+          
           <div className="form-group">
             <button type="submit" className="btn btn-primary-persona mr-2">
               Guardar Evento

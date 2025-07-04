@@ -1,6 +1,6 @@
 import React from 'react';
 
-const EventList = ({ events, onView, onEdit, onToggleStatus, onCreate }) => {
+const EventList = ({ events, onView, onEdit, onToggleStatus, onCreate, activityTypes }) => {
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -20,6 +20,13 @@ const EventList = ({ events, onView, onEdit, onToggleStatus, onCreate }) => {
       minute: '2-digit'
     };
     return new Date(dateString).toLocaleDateString('es-ES', options);
+  };
+
+  // Función para obtener el nombre del tipo de actividad
+  const getActivityTypeName = (typeId) => {
+    if (!activityTypes || !typeId) return 'Sin tipo';
+    const type = activityTypes.find(t => t.id === typeId);
+    return type ? type.nombre : 'Desconocido';
   };
 
   return (
@@ -48,14 +55,13 @@ const EventList = ({ events, onView, onEdit, onToggleStatus, onCreate }) => {
                 <td>{event.name}</td>
                 <td>
                   <span className="badge badge-type">
-                    {event.activityType === 'maraton' ? 'Maratón' : 
-                     event.activityType === 'tour' ? 'Tour' : 'Caminata'}
+                    {getActivityTypeName(event.activityType)}
                   </span>
                 </td>
                 <td>{formatDate(event.startDate)}</td>
                 <td>{formatDate(event.endDate)}</td>
                 <td className="text-center">{event.maxClients}</td>
-                <td className="text-right" style={{ color: '#000' }}> {/* Texto en negro */}
+                <td className="text-right" style={{ color: '#000' }}>
                   {formatCurrency(event.precioDolares || 0)}
                 </td>
                 <td>
