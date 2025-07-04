@@ -5,21 +5,22 @@ import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 
 import authRoutes from './routes/auth.routes.js';
-// ... otras rutas que puedas tener ...
-import adminRoutes from './routes/admin.routes.js'; // Importar las nuevas rutas de administración
+import adminRoutes from './routes/admin.routes.js'; 
+import reservasRoutes from './routes/reservas.routes.js';
 
 const app = express();
 
 app.use(morgan('dev'));
 app.use(cors({
-    origin: 'http://localhost:3000', // Asegúrate de que tu frontend corre aquí
-    credentials: true, // Esto es crucial para enviar y recibir cookies (como tu token)
+    origin: 'http://localhost:3000', 
+    credentials: true, 
 }));
 app.use(express.json());
 app.use(cookieParser());
 
 app.use('/api', authRoutes);
-app.use('/api', adminRoutes); // Usar las rutas de administración bajo el prefijo /api
+app.use('/api', adminRoutes); 
+app.use('/api', reservasRoutes);
 
 
 export default app;

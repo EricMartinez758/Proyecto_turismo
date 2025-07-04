@@ -1,271 +1,200 @@
-import React, { useState } from 'react';
-import { Modal, Button, Form, InputGroup, ListGroup, Badge } from 'react-bootstrap';
-import { PDFDownloadLink } from '@react-pdf/renderer';
-import InvoicePDF from './InvoicePDF';
+// src/components/CreateReservationModal.js
 
-const actividadesDisponibles = [
-  { type: 'tour', location: 'Canaima' },
-  { type: 'plan vacional', location: 'Isla Margarita' },
-  { type: 'maraton', location: 'Caracas' }
-];
+import React, { useState, useEffect } from 'react';
+import {
+    CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter,
+    CButton, CFormSelect, CFormInput, CFormCheck, CSpinner, CAlert
+} from '@coreui/react';
 
-const CreateReservationModal = ({ show, onHide, onCreate, activityPrices, availableClients }) => {
-  const [formData, setFormData] = useState({
-    reservationDate: new Date().toISOString().split('T')[0],
-    activity: {
-      ...actividadesDisponibles[0],
-      price: activityPrices[actividadesDisponibles[0].type]
-    },
-    client: availableClients[0],
-    groupMembers: [],
-    paymentMethod: 'USD',
-    active: true,
-    people: 1
-  });
+const CreateReservationModal = ({
+    show, onHide, onCreate, availableClients, availableActivities // <-- Recibe availableActivities
+}) => {
+    const [newReservationData, setNewReservationData] = useState({
+        cliente_id: '',
+        actividad_id: '',
+        fecha: '',
+        cantidad_personas: 1,
+        metodo_pago: 'USD', // Método de pago por defecto
+        pagado: false // Por defecto no pagado
+    });
+    const [calculatedPrice, setCalculatedPrice] = useState(0); // Para mostrar el precio calculado
+    const [selectedActivity, setSelectedActivity] = useState(null); // Para guardar la actividad seleccionada
+    const [errorMessage, setErrorMessage] = useState('');
 
-  const [showInvoice, setShowInvoice] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [showSearchResults, setShowSearchResults] = useState(false);
-
-  const handleSearch = (term) => {
-    setSearchTerm(term);
-    if (term.length > 0) {
-      const results = availableClients.filter(client =>
-        client.idNumber.includes(term) ||
-        `${client.firstName} ${client.lastName}`.toLowerCase().includes(term.toLowerCase())
-      );
-      setSearchResults(results);
-      setShowSearchResults(true);
-    } else {
-      setSearchResults([]);
-      setShowSearchResults(false);
-    }
-  };
-
-  const addGroupMember = (client) => {
-    if (!formData.groupMembers.some(m => m.idNumber === client.idNumber)) {
-      setFormData(prev => ({
-        ...prev,
-        groupMembers: [...prev.groupMembers, client],
-        people: prev.groupMembers.length + 2
-      }));
-    }
-    setSearchTerm('');
-    setShowSearchResults(false);
-  };
-
-  const removeGroupMember = (idNumber) => {
-    setFormData(prev => ({
-      ...prev,
-      groupMembers: prev.groupMembers.filter(m => m.idNumber !== idNumber),
-      people: prev.groupMembers.length
-    }));
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (name === 'client') {
-      const selectedClient = availableClients.find(c => c.idNumber === value);
-      setFormData(prev => ({
-        ...prev,
-        client: selectedClient
-      }));
-    } else if (name === 'activity') {
-      const selectedActivity = actividadesDisponibles.find(a =>
-        `${a.type}_${a.location}` === value
-      );
-      setFormData(prev => ({
-        ...prev,
-        activity: {
-          ...selectedActivity,
-          price: activityPrices[selectedActivity.type]
+    useEffect(() => {
+        if (show) {
+            setNewReservationData({
+                cliente_id: availableClients.length > 0 ? availableClients[0].id : '',
+                actividad_id: availableActivities.length > 0 ? availableActivities[0].id : '',
+                fecha: new Date().toISOString().slice(0, 10), // Por defecto la fecha actual
+                cantidad_personas: 1,
+                metodo_pago: 'USD',
+                pagado: false
+            });
+            setCalculatedPrice(0);
+            setErrorMessage('');
+            // Resetear la actividad seleccionada y establecer una por defecto si hay actividades
+            if (availableActivities.length > 0) {
+                const defaultActivityId = availableActivities[0].id;
+                const defaultActivity = availableActivities.find(act => act.id === defaultActivityId);
+                setSelectedActivity(defaultActivity || null);
+            } else {
+                setSelectedActivity(null);
+            }
         }
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: name === 'people' ? parseInt(value) : value
-      }));
-    }
-  };
+    }, [show, availableClients, availableActivities]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onCreate(formData);
-    setShowInvoice(true);
-  };
+    // Efecto para recalcular el precio cuando la actividad o la cantidad de personas cambian
+    useEffect(() => {
+        if (selectedActivity && newReservationData.cantidad_personas > 0) {
+            // Asegúrate de que selectedActivity.price existe y tiene la moneda seleccionada
+            const priceForCurrency = selectedActivity.price?.[newReservationData.metodo_pago] || 0;
+            setCalculatedPrice(priceForCurrency * newReservationData.cantidad_personas);
+        } else {
+            setCalculatedPrice(0);
+        }
+    }, [selectedActivity, newReservationData.cantidad_personas, newReservationData.metodo_pago]);
 
-  const calculateTotal = () => {
-    const priceObj = formData.activity?.price || {};
-    const base = priceObj[formData.paymentMethod] || 0;
-    return base * formData.people;
-  };
 
-  return (
-    <Modal show={show} onHide={onHide} size="lg" className="reserva-modal">
-      <Modal.Header closeButton>
-        <Modal.Title>Nueva Reservación</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <Form onSubmit={handleSubmit} className="reserva-form-card">
-          <Form.Group className="mb-3">
-            <Form.Label className="form-label">Fecha de Reservación</Form.Label>
-            <Form.Control
-              type="date"
-              name="reservationDate"
-              value={formData.reservationDate}
-              onChange={handleChange}
-              required
-            />
-          </Form.Group>
+    const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        let newValue = value;
 
-          <Form.Group className="mb-3">
-            <Form.Label className="form-label">Seleccionar Actividad</Form.Label>
-            <Form.Select
-              name="activity"
-              value={`${formData.activity.type}_${formData.activity.location}`}
-              onChange={handleChange}
-            >
-              {actividadesDisponibles.map((a, index) => (
-                <option key={index} value={`${a.type}_${a.location}`}>
-                  {a.type.toUpperCase()} - {a.location}
-                </option>
-              ))}
-            </Form.Select>
-          </Form.Group>
+        if (type === 'number') {
+            newValue = parseInt(value, 10);
+            if (isNaN(newValue)) newValue = ''; // Manejar entrada vacía
+        } else if (type === 'checkbox') {
+            newValue = checked;
+        }
 
-          <Form.Group className="mb-3">
-            <Form.Label className="form-label">Cliente Principal</Form.Label>
-            <Form.Select
-              name="client"
-              value={formData.client.idNumber}
-              onChange={handleChange}
-            >
-              {availableClients.map((c, index) => (
-                <option key={index} value={c.idNumber}>
-                  {c.firstName} {c.lastName} ({c.idNumber})
-                </option>
-              ))}
-            </Form.Select>
-          </Form.Group>
+        setNewReservationData(prevData => ({
+            ...prevData,
+            [name]: newValue
+        }));
 
-          <Form.Group className="mb-3">
-            <Form.Label className="form-label">Agregar Integrantes al Grupo</Form.Label>
-            <InputGroup>
-              <Form.Control
-                type="text"
-                placeholder="Buscar por cédula o nombre"
-                value={searchTerm}
-                onChange={(e) => handleSearch(e.target.value)}
-              />
-            </InputGroup>
-            
-            {showSearchResults && (
-              <ListGroup className="mt-2" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                {searchResults.map((client, index) => (
-                  <ListGroup.Item
-                    key={index}
-                    action
-                    onClick={() => addGroupMember(client)}
-                  >
-                    {client.firstName} {client.lastName} ({client.idNumber})
-                  </ListGroup.Item>
-                ))}
-              </ListGroup>
-            )}
-          </Form.Group>
+        // Si la actividad cambia, actualiza selectedActivity
+        if (name === 'actividad_id') {
+            const actId = parseInt(newValue, 10); // Asegúrate de que sea un entero para la comparación
+            const activity = availableActivities.find(act => act.id === actId);
+            setSelectedActivity(activity || null);
+        }
+    };
 
-          {formData.groupMembers.length > 0 && (
-            <Form.Group className="mb-3">
-              <Form.Label className="form-label">Integrantes del Grupo</Form.Label>
-              <div className="border p-2 rounded" style={{ maxHeight: '150px', overflowY: 'auto' }}>
-                {formData.groupMembers.map((member, index) => (
-                  <Badge key={index} bg="info" className="badge-guia me-2 mb-2 d-inline-flex align-items-center">
-                    {member.firstName} {member.lastName} ({member.idNumber})
-                    <Button
-                      variant="link"
-                      size="sm"
-                      className="text-white p-0 ms-2"
-                      onClick={() => removeGroupMember(member.idNumber)}
+    const handleSubmit = () => {
+        // Validación básica
+        if (!newReservationData.cliente_id || !newReservationData.actividad_id || !newReservationData.fecha || newReservationData.cantidad_personas <= 0) {
+            setErrorMessage('Por favor, completa todos los campos obligatorios.');
+            return;
+        }
+        if (onCreate) {
+            onCreate(newReservationData);
+            setErrorMessage(''); // Limpiar error en intento de envío exitoso
+        }
+    };
+
+    return (
+        <CModal visible={show} onClose={onHide}>
+            <CModalHeader>
+                <CModalTitle>Crear Nueva Reserva</CModalTitle>
+            </CModalHeader>
+            <CModalBody>
+                {errorMessage && <CAlert color="danger">{errorMessage}</CAlert>}
+
+                <div className="mb-3">
+                    <label htmlFor="cliente_id" className="form-label">Cliente:</label>
+                    <CFormSelect
+                        id="cliente_id"
+                        name="cliente_id"
+                        value={newReservationData.cliente_id}
+                        onChange={handleChange}
                     >
-                      <i className="bi bi-x"></i>
-                    </Button>
-                  </Badge>
-                ))}
-              </div>
-            </Form.Group>
-          )}
+                        <option value="">Selecciona un cliente</option>
+                        {availableClients.map(client => (
+                            <option key={client.id} value={client.id}>
+                                {client.firstName} {client.lastName} ({client.idNumber})
+                            </option>
+                        ))}
+                    </CFormSelect>
+                </div>
 
-          <Form.Group className="mb-3">
-            <Form.Label className="form-label">Cantidad Total de Personas</Form.Label>
-            <Form.Control
-              type="number"
-              name="people"
-              value={formData.people}
-              min="1"
-              onChange={handleChange}
-              required
-              readOnly
-            />
-            <Form.Text className="text-muted">
-              Incluye al cliente principal {formData.groupMembers.length > 0 && `y ${formData.groupMembers.length} integrantes`}
-            </Form.Text>
-          </Form.Group>
+                <div className="mb-3">
+                    <label htmlFor="actividad_id" className="form-label">Actividad:</label>
+                    <CFormSelect
+                        id="actividad_id"
+                        name="actividad_id"
+                        value={newReservationData.actividad_id}
+                        onChange={handleChange}
+                    >
+                        <option value="">Selecciona una actividad</option>
+                        {availableActivities.map(activity => (
+                            <option key={activity.id} value={activity.id}>
+                                {/* Muestra el tipo y la descripción de la actividad */}
+                                {activity.type} - {activity.description} 
+                            </option>
+                        ))}
+                    </CFormSelect>
+                </div>
 
-          <h5 className="mt-4 mb-3">Información de Pago</h5>
+                <div className="mb-3">
+                    <label htmlFor="fecha" className="form-label">Fecha de Actividad:</label>
+                    <CFormInput
+                        type="date"
+                        id="fecha"
+                        name="fecha"
+                        value={newReservationData.fecha}
+                        onChange={handleChange}
+                    />
+                </div>
 
-          <div className="row">
-            <Form.Group className="mb-3 col-md-6">
-              <Form.Label className="form-label">Método de Pago</Form.Label>
-              <Form.Select
-                name="paymentMethod"
-                value={formData.paymentMethod}
-                onChange={handleChange}
-                required
-              >
-                <option value="USD">Dólares (USD)</option>
-                <option value="EUR">Euros (EUR)</option>
-                <option value="COP">Pesos Colombianos (COP)</option>
-                <option value="VES">Bolívares (VES)</option>
-              </Form.Select>
-            </Form.Group>
+                <div className="mb-3">
+                    <label htmlFor="cantidad_personas" className="form-label">Cantidad de Personas:</label>
+                    <CFormInput
+                        type="number"
+                        id="cantidad_personas"
+                        name="cantidad_personas"
+                        value={newReservationData.cantidad_personas}
+                        onChange={handleChange}
+                        min="1"
+                    />
+                </div>
 
-            <Form.Group className="mb-3 col-md-6">
-              <Form.Label className="form-label">Total ({formData.paymentMethod})</Form.Label>
-              <Form.Control
-                type="text"
-                value={calculateTotal().toFixed(2)}
-                readOnly
-              />
-            </Form.Group>
-          </div>
+                <div className="mb-3">
+                    <label htmlFor="metodo_pago" className="form-label">Método de Pago:</label>
+                    <CFormSelect
+                        id="metodo_pago"
+                        name="metodo_pago"
+                        value={newReservationData.metodo_pago}
+                        onChange={handleChange}
+                    >
+                        {/* Asegúrate de que las monedas disponibles coincidan con las de tu actividad.price */}
+                        {selectedActivity?.price && Object.keys(selectedActivity.price).map(currency => (
+                            <option key={currency} value={currency}>{currency}</option>
+                        ))}
+                    </CFormSelect>
+                </div>
 
-          <div className="d-flex justify-content-end mt-4">
-            <Button variant="secondary-reserva" onClick={onHide} className="me-2">
-              Cancelar
-            </Button>
-            <Button variant="primary-reserva" type="submit">
-              Guardar Reservación
-            </Button>
-          </div>
-        </Form>
+                <div className="mb-3">
+                    <label className="form-label">Precio Calculado:</label>
+                    <p className="fw-bold">{calculatedPrice.toFixed(2)} {newReservationData.metodo_pago}</p>
+                </div>
 
-        {showInvoice && (
-          <div className="mt-4 p-3 border rounded medical-history-card">
-            <h5>Factura Generada</h5>
-            <PDFDownloadLink
-              document={<InvoicePDF reservation={formData} total={calculateTotal()} />}
-              fileName={`factura_${formData.client.lastName}.pdf`}
-              className="btn btn-success"
-            >
-              {({ loading }) => loading ? 'Preparando factura...' : 'Descargar Factura'}
-            </PDFDownloadLink>
-          </div>
-        )}
-      </Modal.Body>
-    </Modal>
-  );
+                <div className="mb-3">
+                    <CFormCheck
+                        id="pagado"
+                        name="pagado"
+                        label="Pagado"
+                        checked={newReservationData.pagado}
+                        onChange={handleChange}
+                    />
+                </div>
+
+            </CModalBody>
+            <CModalFooter>
+                <CButton color="secondary" onClick={onHide}>Cancelar</CButton>
+                <CButton color="primary" onClick={handleSubmit}>Crear Reserva</CButton>
+            </CModalFooter>
+        </CModal>
+    );
 };
 
 export default CreateReservationModal;

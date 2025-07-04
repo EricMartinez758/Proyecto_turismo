@@ -71,15 +71,11 @@ export const getRolesList = async (req, res) => {
 export const createTrabajador = async (req, res) => {
     const { correo, contrasena, rol_id, estado } = req.body;
 
-    console.log('--- Depuración createTrabajador ---');
-    console.log('req.body:', req.body);
-
     if (!correo || !contrasena || !rol_id || typeof estado === 'undefined') {
         console.log('Validación inicial falló: campos requeridos faltantes.');
         return res.status(400).json({ message: "Todos los campos son requeridos: correo, contraseña, rol y estado." });
     }
 
-    // Mantener esta validación para asegurar que rol_id es un número
     const parsedRolId = parseInt(rol_id);
     if (isNaN(parsedRolId)) {
         console.error("Error de validación: rol_id no es un número válido. Valor recibido:", rol_id);
@@ -94,7 +90,7 @@ export const createTrabajador = async (req, res) => {
 
         const result = await pool.query(
             'SELECT * FROM create_new_trabajador($1, $2, $3, $4)',
-            [correo, passwordHash, parsedRolId, estadoDB] // Usa parsedRolId aquí
+            [correo, passwordHash, parsedRolId, estadoDB] 
         );
 
         const newTrabajador = result.rows[0];
@@ -102,9 +98,9 @@ export const createTrabajador = async (req, res) => {
         res.status(201).json({
             message: "Trabajador creado exitosamente.",
             trabajador: {
-                id: newTrabajador.id,        // Este ID será un UUID
+                id: newTrabajador.id,        
                 correo: newTrabajador.correo,
-                rol_id: newTrabajador.rol_id, // Este será un INT
+                rol_id: newTrabajador.rol_id, 
                 estado: newTrabajador.estado,
                 creacion: newTrabajador.creacion,
                 role: newTrabajador.role_name
@@ -115,6 +111,6 @@ export const createTrabajador = async (req, res) => {
         console.error("Error al crear trabajador:", error);
         res.status(500).json({ message: error.message || "Error interno del servidor al crear trabajador." });
     } finally {
-        console.log('--- Fin Depuración createTrabajador ---');
+       
     }
 };
